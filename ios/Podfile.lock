@@ -1,0 +1,51 @@
+PODS:
+  - ffmpeg-kit-ios-https (5.1.LTS)
+  - ffmpeg_kit_flutter (5.1.0.LTS):
+    - ffmpeg_kit_flutter/https-lts (= 5.1.0.LTS)
+    - Flutter
+  - ffmpeg_kit_flutter/https-lts (5.1.0.LTS):
+    - ffmpeg-kit-ios-https (= 5.1.LTS)
+    - Flutter
+  - Flutter (1.0.0)
+  - flutter_media_writer (0.0.1):
+    - Flutter
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - ffmpeg_kit_flutter (from `.symlinks/plugins/ffmpeg_kit_flutter/ios`)
+  - Flutter (from `Flutter`)
+  - flutter_media_writer (from `.symlinks/plugins/flutter_media_writer/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+
+SPEC REPOS:
+  trunk:
+    - ffmpeg-kit-ios-https
+
+EXTERNAL SOURCES:
+  ffmpeg_kit_flutter:
+    :path: ".symlinks/plugins/ffmpeg_kit_flutter/ios"
+  Flutter:
+    :path: Flutter
+  flutter_media_writer:
+    :path: ".symlinks/plugins/flutter_media_writer/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/ios"
+
+SPEC CHECKSUMS:
+  ffmpeg-kit-ios-https: 9e50ffa7eaa6272a0021829e054ef241f2ecffb2
+  ffmpeg_kit_flutter: fb5bee3a6038231463ee99e30f97a5763e0ae40f
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  flutter_media_writer: bd6b516098329dc76a2a7db0af2b3e971b9907dd
+  image_picker_ios: 58b9c4269cb176f89acea5e5d043c9358f2d25f8
+  path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9
+
+PODFILE CHECKSUM: 4e8f8b2be68aeea4c0d5beb6ff1e79fface1d048
+
+COCOAPODS: 1.11.3
