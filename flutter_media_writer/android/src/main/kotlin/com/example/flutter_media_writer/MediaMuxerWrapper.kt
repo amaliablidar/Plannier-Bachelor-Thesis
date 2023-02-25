@@ -29,9 +29,9 @@ class MediaMuxerWrapper : Callback() {
     @Throws(IOException::class)
     fun prepare(outputPath: String) {
         Log.d(TAG, "prepare: Prepare muxer $mediaMuxer")
-        val width = 960
-        val height = 1280
-        encoder.startEncoder(outputPath, Size(width, height),MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)
+        val width = 1200
+        val height = 2000
+        encoder.startEncoder(outputPath, Size(width, height),MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar)
     }
 
     fun encode(frame: ByteArray) {

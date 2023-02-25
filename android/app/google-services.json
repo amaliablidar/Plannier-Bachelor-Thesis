@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "493522190860",
+    "project_id": "plannier-5b64c",
+    "storage_bucket": "plannier-5b64c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493522190860:android:3b2e28f0177e69a8166429",
+        "android_client_info": {
+          "package_name": "com.example.event_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "493522190860-mqn6g732drgt4vqm7h952hc04a2s5gqv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3F-f84ERDOK16LuYHrQedboSJRm0AVhs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "493522190860-mqn6g732drgt4vqm7h952hc04a2s5gqv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "493522190860-cg6j0mpg08tnvr41e58ij7ln8j69qqn8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.plannier"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

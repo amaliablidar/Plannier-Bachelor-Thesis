@@ -42,6 +42,9 @@ dependencies:
   flutter_countdown_timer: ^4.1.0
   image_picker: ^0.8.6
   image: ^3.0.4
+  firebase_core: ^2.7.0
+  cloud_firestore: 
+  firebase_auth: ^4.2.9
 
 
 dev_dependencies:

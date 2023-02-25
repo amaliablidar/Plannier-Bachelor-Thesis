@@ -38,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: const Text('here'),
             ),
-            Image.asset('assets/event_placeholder.jpg'),
             if (imageRGB != null)
               SizedBox(
                 height: 50,
