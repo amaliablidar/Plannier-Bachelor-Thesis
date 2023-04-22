@@ -6,7 +6,6 @@ import 'flutter_media_writer_platform_interface.dart';
 /// An implementation of [FlutterMediaWriterPlatform] that uses method channels.
 class MethodChannelFlutterMediaWriter extends FlutterMediaWriterPlatform {
   /// The method channel used to interact with the native platform.
-  @visibleForTesting
   final methodChannel = const MethodChannel('flutter_media_writer');
 
   @override

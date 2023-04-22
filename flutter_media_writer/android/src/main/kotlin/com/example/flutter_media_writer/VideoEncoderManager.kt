@@ -10,63 +10,26 @@ import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingQueue
 
-/**
- * The video encoder implementation which is responsible to encode multiple frames into a video file.
- */
 class VideoEncoderManager : MediaCodec.Callback() {
-    /**
-     * The queue containing all the available input buffers for encoding operation.
-     */
     private val inputBuffersQueue = LinkedBlockingQueue<Int>(
-        INPUT_BUFFERS_QUEUE_CAPACITY
+        10
     )
-
-    /**
-     * The codec for encoding the frames in a H.264 format.
-     */
     private var mediaCodec: MediaCodec? = null
-
-    /**
-     * The muxer for writing the H.264 frames into an mp4 video file.
-     */
     private var mediaMuxer: MediaMuxer? = null
-
-    /**
-     * The index of the current video file to identify the file in order to write the frames to it.
-     */
     private var outputVideoIndex = 0
-
-    /**
-     * The video path where to store the video file.
-     */
     private var videoPath: String? = null
-
-    /**
-     * The presentation time for the current frame which is constantly increased with [.FRAME_PRESENTATION_INTERVAL].
-     */
     private var framePresentationTime: Long = 0
-
-    /**
-     * A flag which is `true` when the encoding is started, `false` otherwise.
-     */
     private var isMediaCodecStarted = false
-
-    /**
-     * The frame width which is the same as video width.
-     */
     private var width = 0
-
-    /**
-     * The frame height which is the same as video height.
-     */
     private var height = 0
+
     fun startEncoder(videoPath: String?, videoSize: Size, colorFormat: Int) {
         try {
             width = videoSize.width
             height = videoSize.height
             this.videoPath = videoPath
             val format = createOutputFormat(videoSize, colorFormat)
-            mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
+            mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC) //h.264
             mediaCodec!!.setCallback(this)
             mediaCodec!!.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
             framePresentationTime = 0
@@ -169,7 +132,7 @@ class VideoEncoderManager : MediaCodec.Callback() {
                 TAG,
                 String.format("queueInputBuffer.1 ")
             )
-            inputBuffersQueue.take()
+            inputBuffersQueue.take() //it waits until an element becomes available
         } catch (e: InterruptedException) {
             Log.d(
                 TAG,
@@ -225,9 +188,6 @@ class VideoEncoderManager : MediaCodec.Callback() {
 
     /**
      * Receives the frame data from codec which is encoded as H.264 and writes the frames into an mp4 file.
-     * @param mediaCodec the codec which handles the encoding operation.
-     * @param index the index of the output buffer.
-     * @param bufferInfo the information related to the current frame.
      */
     private fun dequeueInputBuffer(
         mediaCodec: MediaCodec,
@@ -307,9 +267,6 @@ class VideoEncoderManager : MediaCodec.Callback() {
 
     /**
      * Creates the output format for the [.mediaCodec].
-     * @param videoSize the size of the video frames.
-     * @param colorFormat the color format of the video frames to encode.
-     * @return the format of the encoded video.
      */
     private fun createOutputFormat(videoSize: Size, colorFormat: Int): MediaFormat {
         val result = MediaFormat.createVideoFormat(
@@ -327,13 +284,9 @@ class VideoEncoderManager : MediaCodec.Callback() {
         )
         Log.d(TAG, String.format("createOutputFormat. Color format: %s ", colorFormat))
         result.setInteger(MediaFormat.KEY_COLOR_FORMAT, colorFormat)
-        //this value for video bit rate was chosen after testing multiple values, in order to maintain a smaller video size.
-        val roundedMp=Math.round((width * height) / 1000000f)
-        val videoBitRate = if (roundedMp >= FRAME_MP) {
-            videoSize.width * videoSize.height * BITRATE_MULTIPLIER_HIGH_RESOLUTION
-        } else {
-            videoSize.width * videoSize.height * BITRATE_MULTIPLIER_LOW_RESOLUTION
-        }
+
+        val videoBitRate = videoSize.width * videoSize.height * BITRATE_MULTIPLIER
+
         result.setInteger(MediaFormat.KEY_BIT_RATE, videoBitRate)
         Log.d(TAG, String.format("createOutputFormat. Video bit rate: %s ", videoBitRate))
         Log.d(TAG, String.format("createOutputFormat. Video frame rate: %s ", VIDEO_FRAME_RATE))
@@ -366,45 +319,25 @@ class VideoEncoderManager : MediaCodec.Callback() {
         private val TAG = VideoEncoderManager::class.java.simpleName
 
         /**
-         * The frame rate per second for encoding the frames.
-         * For a frame rate of 5/second, a video having 10 seconds will contain 50 frames.
+         * Number of photos in a second
          */
-        private const val VIDEO_FRAME_RATE = 5
+        private const val VIDEO_FRAME_RATE = 1
 
         /**
-         * The frame rate from which the bit rate should change.
+         * Number of pixels kept from a photo
          */
-        private const val FRAME_MP = 5
-
-        /**
-         * The multiplier for bitrate when is a higher resolution for frame.
-         */
-        private const val BITRATE_MULTIPLIER_HIGH_RESOLUTION = 3
-
-        /**
-         * The multiplier for bitrate when is a lower resolution for frame.
-         */
-        private const val BITRATE_MULTIPLIER_LOW_RESOLUTION = 4
+        private const val BITRATE_MULTIPLIER = 3
 
         /**
          * The interval in seconds for a video key frames.
          */
+        //TODO check if frame interval is good
         private const val VIDEO_KEY_FRAME_INTERVAL = 5
 
         /**
-         * The presentation interval between the video frames in microseconds .
+         * The interval between photos in microseconds
          */
-        private const val FRAME_PRESENTATION_INTERVAL = 200000
+        private const val FRAME_PRESENTATION_INTERVAL = 1000000
 
-        /**
-         * The maximum capacity for the input buffers queue.
-         * The input buffers number is depending on the device type, therefore it will be used the highest value.
-         */
-        private const val INPUT_BUFFERS_QUEUE_CAPACITY = 10
-
-        /**
-         * The value used to double the value or to divided it in half.
-         */
-        private const val TWO_OPERATIONAL_VALUE = 2
     }
 }

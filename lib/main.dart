@@ -1,19 +1,27 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:plannier/events/bloc/event_bloc.dart';
+import 'package:plannier/home/screens/home_screen.dart';
+import 'package:plannier/to_do/bloc/to_do_bloc.dart';
 import 'package:plannier/utils/colors.dart';
+import 'package:plannier/utils/firebase/firebase_storage.dart';
+import 'package:provider/provider.dart';
 
+import 'login/bloc/auth_bloc.dart';
+import 'login/screens/login_screen.dart';
 import 'main_screen.dart';
 
 Future main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle.dark.copyWith(
-        statusBarColor: Colors.white, // Color for Android
+        statusBarColor:  PlannerieColors.primary, // Color for Android
         statusBarBrightness:
             Brightness.dark // Dark == white status bar -- for IOS.
         ),
@@ -26,32 +34,57 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-          primaryColor: PlannerieColors.primary,
-          scaffoldBackgroundColor: Colors.grey.shade100,
-          textTheme: TextTheme(
-            subtitle1: GoogleFonts.rajdhani(
-              color: const Color(0xffffd5b9),
-            ),
-            subtitle2: GoogleFonts.rajdhani(
-                color: const Color(0xffffd5b9), fontSize: 20),
+    return Provider<FirebaseStorageService>(
+      create: (context) => FirebaseStorageService(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => AuthBloc(),
           ),
-          colorScheme: ColorScheme(
-              secondary: PlannerieColors.secondary,
-              onBackground: Colors.grey.shade200,
-              brightness: Brightness.light,
-              onError: Colors.white,
-              onSecondary: Colors.grey.shade200,
-              background: Colors.grey.shade200,
-              onSurface: Colors.grey.shade200,
-              surface: Colors.grey.shade200,
-              primary: PlannerieColors.primary,
-              onPrimary: Colors.grey.shade200,
-              error: Colors.red)),
-      debugShowCheckedModeBanner: false,
-      home: const MainScreen(),
+          BlocProvider(
+            create: (context) => EventBloc(),
+          ),
+          BlocProvider(
+            create: (context) => ToDoBloc(),
+          )
+        ],
+        child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primaryColor: PlannerieColors.primary,
+            scaffoldBackgroundColor: Colors.grey.shade100,
+            textTheme: TextTheme(
+              subtitle1: GoogleFonts.dmSans(
+                color: Colors.black,
+              ),
+              subtitle2: GoogleFonts.dmSans(color: Colors.black, fontSize: 20),
+            ),
+            colorScheme: ColorScheme(
+                secondary: PlannerieColors.secondary,
+                onBackground: Colors.grey.shade200,
+                brightness: Brightness.light,
+                onError: Colors.white,
+                onSecondary: Colors.white,
+                background: Colors.grey.shade200,
+                onSurface: PlannerieColors.primaryLight,
+                surface: Colors.white,
+                primary: PlannerieColors.primary,
+                onPrimary: Colors.white,
+                error: Colors.red),
+          ),
+          debugShowCheckedModeBanner: false,
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return const MainScreen();
+              } else {
+                return const LoginScreen();
+              }
+            },
+          ),
+        ),
+      ),
     );
   }
 }
