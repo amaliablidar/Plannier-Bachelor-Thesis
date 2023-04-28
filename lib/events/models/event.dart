@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:plannier/events/models/user.dart';
 
 class Event extends Equatable {
   final String? id;
@@ -6,7 +7,7 @@ class Event extends Equatable {
   final DateTime date;
   final String address;
   final String dressCode;
-  final Map<String, dynamic> guests; //list of ids
+  final Map<String, Response> guests; //list of ids
   final String imageUrl;
 
   const Event({
@@ -19,13 +20,20 @@ class Event extends Equatable {
     required this.imageUrl,
   });
 
-  Event.fromJson(Map<String, dynamic> json, String id)
-      : id = id,
-        name = json['name'],
+  Event.fromJson(Map<String, dynamic> json, String this.id)
+      : name = json['name'],
         date = json['date'].toDate(),
         address = json['address'],
         dressCode = json['dressCode'],
-        guests = json['guests'],
+        guests = Map<String, Response>.from(
+          json['guests'].map(
+            (String key, value) => MapEntry(
+              key.toString(),
+              Response.values.firstWhere((element) => element.name == value,
+                  orElse: () => Response.pending),
+            ),
+          ),
+        ),
         imageUrl = json['imageUrl'];
 
   Map<String, dynamic> toJson() {
@@ -34,13 +42,32 @@ class Event extends Equatable {
     data['date'] = date;
     data['address'] = address;
     data['dressCode'] = dressCode;
-    data['guests'] = guests;
+    data['guests'] = guests.map(
+      (String key, value) => MapEntry(
+        key.toString(),
+        value.name,
+      ),
+    );
     data['imageUrl'] = imageUrl;
     return data;
   }
 
-
-
+  Event copyWith(
+          {String? id,
+          String? name,
+          DateTime? date,
+          String? address,
+          String? dressCode,
+          Map<String, Response>? guests,
+          String? imageUrl}) =>
+      Event(
+          id: id ?? this.id,
+          name: name ?? this.name,
+          date: date ?? this.date,
+          address: address ?? this.address,
+          dressCode: dressCode ?? this.dressCode,
+          guests: guests ?? this.guests,
+          imageUrl: imageUrl ?? this.imageUrl);
 
   @override
   List<Object?> get props =>

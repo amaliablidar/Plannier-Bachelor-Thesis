@@ -11,6 +11,7 @@ import 'package:plannier/utils/colors.dart';
 import 'package:plannier/utils/firebase/firebase_storage.dart';
 import 'package:provider/provider.dart';
 
+import 'invitations/bloc/invitation_bloc.dart';
 import 'login/bloc/auth_bloc.dart';
 import 'login/screens/login_screen.dart';
 import 'main_screen.dart';
@@ -21,7 +22,7 @@ Future main() async {
 
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle.dark.copyWith(
-        statusBarColor:  PlannerieColors.primary, // Color for Android
+        statusBarColor: PlannerieColors.primary, // Color for Android
         statusBarBrightness:
             Brightness.dark // Dark == white status bar -- for IOS.
         ),
@@ -40,9 +41,6 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider(
             create: (context) => AuthBloc(),
-          ),
-          BlocProvider(
-            create: (context) => EventBloc(),
           ),
           BlocProvider(
             create: (context) => ToDoBloc(),
@@ -77,7 +75,14 @@ class MyApp extends StatelessWidget {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return const MainScreen();
+                return MultiBlocProvider(providers: [
+                  BlocProvider(
+                    create: (context) => EventBloc(),
+                  ),
+                  BlocProvider(
+                    create: (context) => InvitationBloc(),
+                  ),
+                ], child: const MainScreen());
               } else {
                 return const LoginScreen();
               }

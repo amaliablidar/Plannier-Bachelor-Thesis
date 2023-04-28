@@ -5,7 +5,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:plannier/events/models/event.dart';
 import 'package:plannier/to_do/bloc/to_do_bloc.dart';
-
+import 'package:plannier/to_do/screens/to_do_persist_screen.dart';
 
 class ToDoScreen extends StatefulWidget {
   const ToDoScreen({Key? key}) : super(key: key);
@@ -23,93 +23,125 @@ class _ToDoScreenState extends State<ToDoScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : Container(
                     margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
-                    child: GridView.custom(
-                      gridDelegate: SliverQuiltedGridDelegate(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 2,
-                        crossAxisSpacing: 2,
-                        pattern: const [
-                          QuiltedGridTile(2, 1),
-                          QuiltedGridTile(1, 1),
-                          QuiltedGridTile(1, 1),
-                          QuiltedGridTile(1, 2),
-                        ],
-                      ),
-                      childrenDelegate: SliverChildBuilderDelegate(
-                        childCount: state.toDo.length,
-                        (context, index) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  state.toDo[index].title ?? 'To Do',
-                                  style: TextStyle(
-                                    fontFamily: 'Northwell',
-                                    fontSize: 20,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ),
-                                Text(
-                                  DateFormat('dd-MM-yyyy HH:mm').format(
-                                      state.toDo[index].lastEdit ??
-                                          DateTime.now()),
-                                  style: const TextStyle(
-                                      fontSize: 10, color: Colors.grey),
-                                ),
-                                Container(height: 5),
-                                Expanded(
-                                  child: ListView.builder(
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context, i) => Row(
-                                      children: [
-                                        Container(
-                                          height: 10,
-                                          width: 10,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary),
-                                          ),
-                                          child: state.toDo[index].tasks[i]
-                                                      .done ??
-                                                  false
-                                              ? FittedBox(
-                                                  fit: BoxFit.contain,
-                                                  child: Center(
-                                                    child: Icon(
-                                                      Icons.check,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
-                                                    ),
-                                                  ),
-                                                )
-                                              : const SizedBox(),
-                                        ),
-                                        const Spacer(),
-                                        Expanded(
-                                          flex: 20,
-                                          child: Text(state.toDo[index].tasks[i].name ??
-                                              ''),
-                                        ),
-                                      ],
-                                    ),
-                                    itemCount: state.toDo[index].tasks.length,
-                                  ),
-                                )
+                    child: state.toDo.isEmpty
+                        ? const Center(
+                            child: Text('No To Do Lists Yet'),
+                          )
+                        : GridView.custom(
+                            gridDelegate: SliverQuiltedGridDelegate(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 2,
+                              crossAxisSpacing: 2,
+                              pattern: const [
+                                QuiltedGridTile(2, 1),
+                                QuiltedGridTile(1, 1),
+                                QuiltedGridTile(1, 1),
+                                QuiltedGridTile(1, 2),
                               ],
                             ),
-                          );
-                        },
-                      ),
-                    )
+                            childrenDelegate: SliverChildBuilderDelegate(
+                              childCount: state.toDo.length,
+                              (context, index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ToDoPersistScreen(
+                                          toDo: state.toDo[index],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          state.toDo[index].title ?? '',
+                                          style: TextStyle(
+                                            fontFamily: 'Northwell',
+                                            fontSize: 20,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          DateFormat('dd-MM-yyyy HH:mm').format(
+                                              state.toDo[index].lastEdit ??
+                                                  DateTime.now()),
+                                          style: const TextStyle(
+                                              fontSize: 10, color: Colors.grey),
+                                        ),
+                                        Container(height: 5),
+                                        Expanded(
+                                          child: ListView.builder(
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context, i) => Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  height: 10,
+                                                  width: 10,
+                                                  margin: const EdgeInsets.only(top: 3),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .secondary),
+                                                    color: state
+                                                                .toDo[index]
+                                                                .tasks[i]
+                                                                .done ??
+                                                            false
+                                                        ? Theme.of(context)
+                                                            .colorScheme
+                                                            .secondary
+                                                        : Colors.white,
+                                                  ),
+                                                  child: state.toDo[index]
+                                                              .tasks[i].done ??
+                                                          false
+                                                      ? const FittedBox(
+                                                          fit: BoxFit.contain,
+                                                          child: Center(
+                                                            child: Icon(
+                                                              Icons.check,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : const SizedBox(),
+                                                ),
+                                                const Spacer(),
+                                                Expanded(
+                                                  flex: 20,
+                                                  child: Text(state.toDo[index]
+                                                          .tasks[i].name ??
+                                                      ''),
+                                                ),
+                                              ],
+                                            ),
+                                            itemCount:
+                                                state.toDo[index].tasks.length,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          )
                     // child: ListView.separated(
                     //   itemBuilder: (context, index) => Container(
                     //     height: 70,

@@ -46,15 +46,15 @@ class EventAppBar extends AppBar {
                   ),
                   shape: BoxShape.circle,
                 ),
-                // child: FirebaseAuth.instance.currentUser != null &&
-                //         FirebaseAuth.instance.currentUser?.photoURL != null
-                //     ? CircleAvatar(
-                //         radius: 30,
-                //         backgroundImage: NetworkImage(
-                //           FirebaseAuth.instance.currentUser!.photoURL!,
-                //         ),
-                //       )
-                //     : const SizedBox(),
+                child: FirebaseAuth.instance.currentUser != null &&
+                        FirebaseAuth.instance.currentUser?.photoURL != null
+                    ? CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(
+                          FirebaseAuth.instance.currentUser!.photoURL!,
+                        ),
+                      )
+                    : const SizedBox(),
               ),
             )
           ],

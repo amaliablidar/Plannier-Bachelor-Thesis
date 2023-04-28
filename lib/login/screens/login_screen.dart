@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:plannier/invitations/bloc/invitation_bloc.dart';
 import 'package:plannier/login/bloc/auth_bloc.dart';
 import 'package:plannier/login/screens/forgot_password_screen.dart';
 import 'package:plannier/login/screens/signup_screen.dart';
 import 'package:plannier/utils/colors.dart';
 import 'package:plannier/utils/platform_specific_dialog.dart';
 
+import '../../events/bloc/event_bloc.dart';
 import '../../main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -184,7 +186,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                     onFinished: () => Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => const MainScreen(),
+                                        builder: (_) => MultiBlocProvider(
+                                          providers: [
+                                            BlocProvider(
+                                              create: (context) => EventBloc(),
+                                            ),
+                                            BlocProvider(
+                                              create: (context) => InvitationBloc(),
+                                            ),
+                                          ],
+                                          child: const MainScreen(),
+                                        ),
                                       ),
                                     ),
                                   ),

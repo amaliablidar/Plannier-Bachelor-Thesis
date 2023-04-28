@@ -3,19 +3,17 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:multi_image_picker_view/multi_image_picker_view.dart';
-import 'package:plannier/events/screens/event_persist_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plannier/home/screens/upload_picture_screen.dart';
 import 'package:plannier/home/widgets/count_down.dart';
 import 'package:plannier/home/widgets/invitation_response.dart';
 import 'package:plannier/utils/colors.dart';
-import 'package:plannier/utils/yuv_conversion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_media_writer/flutter_media_writer.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../events/bloc/event_bloc.dart';
+import '../../invitations/bloc/invitation_bloc.dart' hide InvitationResponse;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key, this.onSeeAllInvitations}) : super(key: key);
@@ -38,34 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const EventPersistScreen())),
-              child: Container(
-                width: double.infinity,
-                height: 70,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: PlannerieColors.secondary,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      'Add a new event',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    )
-                  ],
-                ),
-              ),
-            ),
             TextButton(
               onPressed: () async => Navigator.push(
                 context,
@@ -83,7 +53,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Image.memory(imageRGB!),
               ),
             const SizedBox(height: 20),
-            const CountDown(),
+            MultiBlocProvider(
+              providers: [
+                BlocProvider.value(
+                  value: context.read<EventBloc>(),
+                ),
+                BlocProvider.value(
+                  value: context.read<InvitationBloc>(),
+                ),
+              ],
+              child: const CountDown(),
+            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,5 +116,4 @@ class _HomeScreenState extends State<HomeScreen> {
       print("error $e");
     }
   }
-
 }

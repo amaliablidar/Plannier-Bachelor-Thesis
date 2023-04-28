@@ -1,13 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plannier/events/screens/event_persist_screen.dart';
 import 'package:plannier/events/screens/events_screen.dart';
+import 'package:plannier/invitations/invitations_screen.dart';
 import 'package:plannier/to_do/screens/to_do_persist_screen.dart';
 import 'package:plannier/to_do/screens/to_do_screen.dart';
 import 'package:plannier/utils/colors.dart';
 import 'package:plannier/event_app_bar.dart';
 import 'package:flutter/material.dart';
 
+import 'events/bloc/event_bloc.dart';
+import 'events/models/event.dart';
 import 'home/screens/home_screen.dart';
+import 'invitations/bloc/invitation_bloc.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -30,10 +35,30 @@ class _MainScreenState extends State<MainScreen> {
             ? HomeScreen(
                 onSeeAllInvitations: () => setState(() => _currentIndex = 3))
             : _currentIndex == 1
-                ? const EventsScreen()
+                ? MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(
+                        value: context.read<EventBloc>(),
+                      ),
+                      BlocProvider.value(
+                        value: context.read<InvitationBloc>(),
+                      ),
+                    ],
+                    child: const EventsScreen(),
+                  )
                 : _currentIndex == 2
                     ? const ToDoScreen()
-                    : const SizedBox(),
+                    : MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(
+                            value: context.read<EventBloc>(),
+                          ),
+                          BlocProvider.value(
+                            value: context.read<InvitationBloc>(),
+                          ),
+                        ],
+                        child: const InvitationsScreen(),
+                      ),
         bottomNavigationBar: BottomAppBar(
           elevation: 0,
           color: Colors.white,
@@ -62,11 +87,25 @@ class _MainScreenState extends State<MainScreen> {
                   icon: Icons.check_box_outlined,
                   isSelected: _currentIndex == 2,
                 ),
-                BottomTabSelector(
-                  title: 'Invitations',
-                  onTap: () => setState(() => _currentIndex = 3),
-                  icon: Icons.email,
-                  isSelected: _currentIndex == 3,
+                BlocBuilder<InvitationBloc, InvitationState>(
+                  builder: (context, state) {
+                    if (state is InvitationLoaded) {
+                      return BottomTabSelector(
+                        title: 'Invitations',
+                        onTap: () => setState(() => _currentIndex = 3),
+                        icon: Icons.email,
+                        isSelected: _currentIndex == 3,
+                        isNew: state.arePending,
+                      );
+                    } else {
+                      return BottomTabSelector(
+                        title: 'Invitations',
+                        onTap: () => setState(() => _currentIndex = 3),
+                        icon: Icons.email,
+                        isSelected: _currentIndex == 3,
+                      );
+                    }
+                  },
                 ),
               ],
             ),
@@ -78,7 +117,24 @@ class _MainScreenState extends State<MainScreen> {
                   shape: MaterialStateProperty.all(const CircleBorder()),
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_)=>_currentIndex==1?const EventPersistScreen():_currentIndex==2?ToDoPersistScreen():const Scaffold()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => _currentIndex == 1
+                              ? MultiBlocProvider(
+                                  providers: [
+                                    BlocProvider.value(
+                                      value: context.read<EventBloc>(),
+                                    ),
+                                    BlocProvider.value(
+                                      value: context.read<InvitationBloc>(),
+                                    ),
+                                  ],
+                                  child: const EventPersistScreen(),
+                                )
+                              : _currentIndex == 2
+                                  ? const ToDoPersistScreen()
+                                  : const Scaffold()));
                 },
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
@@ -96,6 +152,7 @@ class BottomTabSelector extends StatelessWidget {
   final VoidCallback onTap;
   final IconData icon;
   final bool isSelected;
+  final bool? isNew;
 
   const BottomTabSelector({
     Key? key,
@@ -103,6 +160,7 @@ class BottomTabSelector extends StatelessWidget {
     required this.onTap,
     required this.icon,
     this.isSelected = false,
+    this.isNew = false,
   }) : super(key: key);
 
   @override
@@ -114,10 +172,22 @@ class BottomTabSelector extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  color:
-                      isSelected ? Theme.of(context).primaryColor : Colors.grey,
+                Row(
+                  children: [
+                    Icon(
+                      icon,
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
+                    ),
+                    isNew ?? false
+                        ? const Icon(
+                            Icons.error,
+                            color: Colors.red,
+                            size: 10,
+                          )
+                        : const SizedBox(),
+                  ],
                 ),
                 Text(
                   title,

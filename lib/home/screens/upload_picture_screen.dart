@@ -105,7 +105,10 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator(color: Colors.white,))
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ))
                   : ElevatedButton(
                       onPressed: () async {
                         setState(() => isLoading = true);
@@ -117,7 +120,7 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
                             imagesBytes.add(bytesList);
                           }
                         }
-                        // await YuvConversion.jpgToYuv(imagesBytes);
+                        await YuvConversion.jpgToYuv(imagesBytes);
                         setState(() => isLoading = false);
                       },
                       child: const Text(

@@ -14,20 +14,33 @@ class Invitation extends Equatable {
     required this.response,
   });
 
-  Invitation.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        eventId = json['eventId'],
+  Invitation.fromJson(Map<String, dynamic> json, String this.id)
+      : eventId = json['eventId'],
         userId = json['userId'],
-        response = json['response'];
+        response = Response.values
+            .firstWhere((element) => element.name == json['response']);
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['eventId'] = eventId;
     data['userId'] = userId;
-    data['response'] = response;
+    data['response'] = response.name;
     return data;
   }
 
+  Invitation copyWith(
+          {String? id, String? eventId, String? userId, Response? response}) =>
+      Invitation(
+          id: id ?? this.id,
+          eventId: eventId ?? this.eventId,
+          userId: userId ?? this.userId,
+          response: response ?? this.response);
+
   @override
-  List<Object?> get props => [eventId, userId, response];
+  String toString() {
+    return 'Invitation{id: $id, eventId: $eventId, userId: $userId, response: $response}';
+  }
+
+  @override
+  List<Object?> get props => [id, eventId, userId, response];
 }

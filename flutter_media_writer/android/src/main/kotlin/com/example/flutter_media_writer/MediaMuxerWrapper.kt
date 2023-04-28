@@ -18,7 +18,7 @@ class MediaMuxerWrapper {
 
     @Throws(IOException::class)
     fun prepare(outputPath: String, width:Int, height:Int) {
-        encoder.startEncoder(outputPath, Size(width, height),MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)
+        encoder.startEncoder(outputPath, Size(width, height),MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar)
     }
 
     fun encode(frame: ByteArray) {

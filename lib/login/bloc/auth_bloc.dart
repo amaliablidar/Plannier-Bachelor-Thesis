@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final instance = FirebaseAuth.instance;
+  final ref = FirebaseFirestore.instance.collection('/users');
 
   AuthBloc() : super(Unauthenticated()) {
     on<AuthLogin>(_onAuthLogin);
@@ -27,7 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onAuthLogin(AuthLogin event, Emitter<AuthState> emit) async {
     try {
-      UserCredential user = await instance.signInWithEmailAndPassword(
+      await instance.signInWithEmailAndPassword(
           email: event.email, password: event.password);
 
       emit(Authenticated());
@@ -60,6 +62,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await user.user?.updatePhotoURL(event.imageUrl);
       await user.user
           ?.updateDisplayName('${event.firstName} ${event.lastName}');
+      await ref.doc(user.user?.uid).set({'email': user.user?.email, "firstName":event.firstName,"lastName":event.lastName, 'photo': event.imageUrl});
       emit(Unauthenticated());
       event.onFinished?.call();
     } catch (e) {
@@ -84,7 +87,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthUpdateProfilePicture event, Emitter<AuthState> emit) async {
     try {
       var user = await FirebaseAuth.instance.authStateChanges().first;
-      print(user);
       emit(Unauthenticated());
     } catch (e) {
       print(e);

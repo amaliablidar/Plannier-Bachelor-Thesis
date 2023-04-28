@@ -12,9 +12,8 @@ class ToDo extends Equatable {
   const ToDo(
       {this.id, this.eventId, this.lastEdit, required this.tasks, this.title});
 
-  ToDo.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        title = json['title'],
+  ToDo.fromJson(String this.id, Map<String, dynamic> json)
+      : title = json['title'],
         lastEdit = json['lastEdit'] != null
             ? (json['lastEdit'] as Timestamp).toDate()
             : DateTime.now(),
@@ -24,7 +23,6 @@ class ToDo extends Equatable {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
     data['eventId'] = eventId;
     data['lastEdit'] = Timestamp.fromDate(DateTime.now());
     data['title'] = title;
@@ -36,6 +34,20 @@ class ToDo extends Equatable {
   String toString() {
     return 'ToDo{id: $id, title: $title, lastEdit: $lastEdit, eventId: $eventId, tasks: $tasks}';
   }
+
+  ToDo copyWith({
+    String? id,
+    String? eventId,
+    String? title,
+    DateTime? lastEdit,
+    List<Task>? tasks,
+  }) =>
+      ToDo(
+          id: id ?? this.id,
+          eventId: eventId ?? this.eventId,
+          title: title ?? this.title,
+          lastEdit: lastEdit ?? this.lastEdit,
+          tasks: tasks ?? this.tasks);
 
   @override
   List<Object?> get props => [
