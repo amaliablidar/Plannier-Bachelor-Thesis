@@ -67,7 +67,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
   }
 
   Future<void> _onEventAdd(EventAdd event, Emitter<EventState> emit) async {
-    print(FirebaseAuth.instance.currentUser?.uid);
     try {
       final s = state;
       if (s is EventLoaded) {
@@ -83,6 +82,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
 
           ref.add(Invitation(
             eventId: e.id,
+            userName: FirebaseAuth.instance.currentUser?.displayName ?? '',
             userId: FirebaseAuth.instance.currentUser?.uid ?? '',
             response: event.event.guests[guestId] ?? Response.pending,
           ).toJson());
@@ -101,7 +101,6 @@ class EventBloc extends Bloc<EventEvent, EventState> {
 
   Future<void> _onEventUpdate(
       EventUpdate event, Emitter<EventState> emit) async {
-
     try {
       final s = state;
       if (s is EventLoaded) {
@@ -122,6 +121,7 @@ class EventBloc extends Bloc<EventEvent, EventState> {
                   .collection('/users/$guestId/invitations');
               ref.add(Invitation(
                 eventId: event.event.id ?? '',
+                userName: FirebaseAuth.instance.currentUser?.displayName ?? '',
                 userId: FirebaseAuth.instance.currentUser?.uid ?? '',
                 response: event.event.guests[guestId] ?? Response.pending,
               ).toJson());

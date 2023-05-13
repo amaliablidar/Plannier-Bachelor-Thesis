@@ -207,7 +207,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                '${state.guests.firstWhere((element) => element.id == event?.guests.keys.elementAt(index)).firstName} ${state.guests.firstWhere((element) => element.id == event?.guests.keys.elementAt(index)).lastName}',
+                                                '${state.guests.firstWhere((element) => element.id == event?.guests.keys.elementAt(index)).name}',
                                                 style: const TextStyle(
                                                     fontSize: 16),
                                               ),

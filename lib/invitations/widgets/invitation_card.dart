@@ -60,6 +60,16 @@ class InvitationCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Text(
+                  '${invitation.userName} invited you to',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                ),
+                const SizedBox(height: 10),
                 FittedBox(
                   fit: BoxFit.fitWidth,
                   child: Text(
@@ -78,7 +88,7 @@ class InvitationCard extends StatelessWidget {
                         fontSize: 14,
                         color: Colors.white,
                         fontWeight: FontWeight.w400)),
-                const SizedBox(height: 10),
+                const SizedBox(height: 50),
               ],
             ),
           ),

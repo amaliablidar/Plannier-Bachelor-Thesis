@@ -12,7 +12,6 @@ class FirebaseUploadImage extends StatefulWidget {
   final String path;
   final Function(String) onUploaded;
   final VoidCallback isLoading;
-  final double imageHeight;
   final Color backgroundColor;
   final Color borderColor;
 
@@ -22,7 +21,6 @@ class FirebaseUploadImage extends StatefulWidget {
     required this.path,
     required this.onUploaded,
     required this.isLoading,
-    this.imageHeight = 150,
     this.borderColor = const Color(0xFFE6E8EC),
     this.backgroundColor = const Color(0xffF4F4F4),
   }) : super(key: key);
@@ -87,8 +85,6 @@ class _FirebaseUploadImageState extends State<FirebaseUploadImage> {
                         padding: MaterialStateProperty.all(EdgeInsets.zero)),
                     onPressed: () async {
                       var res = await onUpload();
-                      print('picked image ${res?.paths.first}');
-
                       if (res != null) {
                         setState(() {
                           isLoading = true;

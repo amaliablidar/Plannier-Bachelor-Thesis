@@ -53,14 +53,5 @@ class AuthResetPassword extends AuthEvent {
   List<Object?> get props => [email, onFinished];
 }
 
-class AuthUpdateProfilePicture extends AuthEvent{
-  final String imageUrl;
 
-  AuthUpdateProfilePicture({required this.imageUrl});
-
-  @override
-  List<Object?> get props => [imageUrl];
-
-
-}
 

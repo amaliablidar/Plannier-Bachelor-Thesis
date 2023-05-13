@@ -150,7 +150,7 @@ class _ToDoPersistScreenState extends State<ToDoPersistScreen> {
                         children: List.generate(
                           tasksControllers.length,
                           (index) => Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Checkbox(
                                 value: tasksDone[index],
@@ -171,6 +171,16 @@ class _ToDoPersistScreenState extends State<ToDoPersistScreen> {
                                       setState(() => isValid = formValid()),
                                 ),
                               ),
+                              GestureDetector(
+                                onTap: () => setState(() {
+                                  tasksControllers.removeAt(index);
+                                  tasksDone.removeAt(index);
+                                }),
+                                child: const Icon(
+                                  Icons.cancel_outlined,
+                                  color: Colors.grey,
+                                ),
+                              )
                             ],
                           ),
                         ),

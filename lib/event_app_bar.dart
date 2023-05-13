@@ -1,7 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:plannier/invitations/bloc/invitation_bloc.dart';
 import 'package:plannier/profile/screens/profile_screen.dart';
 import 'package:plannier/utils/colors.dart';
 import 'package:flutter/material.dart';
+
+import 'events/bloc/event_bloc.dart';
 
 class EventAppBar extends AppBar {
   EventAppBar({Key? key, required BuildContext context})
@@ -32,7 +36,19 @@ class EventAppBar extends AppBar {
             GestureDetector(
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                MaterialPageRoute(
+                  builder: (_) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(
+                        value: context.read<InvitationBloc>(),
+                      ),
+                      BlocProvider.value(
+                        value: context.read<EventBloc>(),
+                      ),
+                    ],
+                    child: const ProfileScreen(),
+                  ),
+                ),
               ),
               child: Container(
                 margin: const EdgeInsets.only(right: 20),

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_media_writer/flutter_media_writer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plannier/invitations/bloc/invitation_bloc.dart';
@@ -29,11 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      color: Theme.of(context).colorScheme.background,
-      child: Scaffold(
-        body: BlocListener<AuthBloc, AuthState>(
+    return Scaffold(
+      body: SafeArea(
+        child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthError) {
               setState(() => isLoading = false);
@@ -177,7 +176,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         )
                       : ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+
                             setState(() => isLoading = true);
                             context.read<AuthBloc>().add(
                                   AuthLogin(
@@ -192,7 +192,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                               create: (context) => EventBloc(),
                                             ),
                                             BlocProvider(
-                                              create: (context) => InvitationBloc(),
+                                              create: (context) =>
+                                                  InvitationBloc(),
                                             ),
                                           ],
                                           child: const MainScreen(),

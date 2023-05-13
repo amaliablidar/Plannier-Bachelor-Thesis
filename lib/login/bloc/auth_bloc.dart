@@ -24,7 +24,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogout>(_onAuthLogout);
     on<AuthSignup>(_onAuthSignup);
     on<AuthResetPassword>(_onAuthResetPassword);
-    on<AuthUpdateProfilePicture>(_onAuthUpdateProfilePicture);
   }
 
   Future<void> _onAuthLogin(AuthLogin event, Emitter<AuthState> emit) async {
@@ -62,7 +61,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await user.user?.updatePhotoURL(event.imageUrl);
       await user.user
           ?.updateDisplayName('${event.firstName} ${event.lastName}');
-      await ref.doc(user.user?.uid).set({'email': user.user?.email, "firstName":event.firstName,"lastName":event.lastName, 'photo': event.imageUrl});
+      await ref.doc(user.user?.uid).set({
+        'email': user.user?.email,
+        "name": "${event.firstName} ${event.lastName}",
+        'photo': event.imageUrl
+      });
       emit(Unauthenticated());
       event.onFinished?.call();
     } catch (e) {
@@ -77,17 +80,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await instance.sendPasswordResetEmail(email: event.email);
       emit(Unauthenticated());
       event.onFinished?.call();
-    } catch (e) {
-      print(e);
-      _onError(e, emit);
-    }
-  }
-
-  Future<void> _onAuthUpdateProfilePicture(
-      AuthUpdateProfilePicture event, Emitter<AuthState> emit) async {
-    try {
-      var user = await FirebaseAuth.instance.authStateChanges().first;
-      emit(Unauthenticated());
     } catch (e) {
       print(e);
       _onError(e, emit);

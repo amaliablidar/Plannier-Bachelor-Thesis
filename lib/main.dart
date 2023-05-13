@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:plannier/events/bloc/event_bloc.dart';
 import 'package:plannier/home/screens/home_screen.dart';
+import 'package:plannier/profile/bloc/profile_bloc.dart';
 import 'package:plannier/to_do/bloc/to_do_bloc.dart';
 import 'package:plannier/utils/colors.dart';
 import 'package:plannier/utils/firebase/firebase_storage.dart';
@@ -44,7 +45,10 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => ToDoBloc(),
-          )
+          ),
+          BlocProvider(
+            create: (context) => ProfileBloc(),
+          ),
         ],
         child: MaterialApp(
           title: 'Flutter Demo',
@@ -52,10 +56,10 @@ class MyApp extends StatelessWidget {
             primaryColor: PlannerieColors.primary,
             scaffoldBackgroundColor: Colors.grey.shade100,
             textTheme: TextTheme(
-              subtitle1: GoogleFonts.dmSans(
+              titleMedium: GoogleFonts.dmSans(
                 color: Colors.black,
               ),
-              subtitle2: GoogleFonts.dmSans(color: Colors.black, fontSize: 20),
+              titleSmall: GoogleFonts.dmSans(color: Colors.black, fontSize: 20),
             ),
             colorScheme: ColorScheme(
                 secondary: PlannerieColors.secondary,

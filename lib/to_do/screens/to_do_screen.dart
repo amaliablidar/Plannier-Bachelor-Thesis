@@ -17,173 +17,205 @@ class ToDoScreen extends StatefulWidget {
 class _ToDoScreenState extends State<ToDoScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ToDoBloc, ToDoState>(
-        builder: (context, state) => state is ToDoLoaded
-            ? state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Container(
-                    margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
-                    child: state.toDo.isEmpty
-                        ? const Center(
-                            child: Text('No To Do Lists Yet'),
-                          )
-                        : GridView.custom(
-                            gridDelegate: SliverQuiltedGridDelegate(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 2,
-                              crossAxisSpacing: 2,
-                              pattern: const [
-                                QuiltedGridTile(2, 1),
-                                QuiltedGridTile(1, 1),
-                                QuiltedGridTile(1, 1),
-                                QuiltedGridTile(1, 2),
-                              ],
-                            ),
-                            childrenDelegate: SliverChildBuilderDelegate(
-                              childCount: state.toDo.length,
-                              (context, index) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => ToDoPersistScreen(
-                                          toDo: state.toDo[index],
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        BlocBuilder<ToDoBloc, ToDoState>(
+            builder: (context, state) => state is ToDoLoaded
+                ? state.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Container(
+                        margin:
+                            const EdgeInsets.only(left: 20, right: 20, top: 20),
+                        child: state.toDo.isEmpty
+                            ? const Center(
+                                child: Text('No To Do Lists Yet'),
+                              )
+                            : GridView.custom(
+                                gridDelegate: SliverQuiltedGridDelegate(
+                                  crossAxisCount: 2,
+                                  mainAxisSpacing: 2,
+                                  crossAxisSpacing: 2,
+                                  pattern: const [
+                                    QuiltedGridTile(2, 1),
+                                    QuiltedGridTile(1, 1),
+                                    QuiltedGridTile(1, 1),
+                                    QuiltedGridTile(1, 2),
+                                  ],
+                                ),
+                                childrenDelegate: SliverChildBuilderDelegate(
+                                  childCount: state.toDo.length,
+                                  (context, index) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => ToDoPersistScreen(
+                                              toDo: state.toDo[index],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        padding: const EdgeInsets.all(10),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              state.toDo[index].title ?? '',
+                                              style: TextStyle(
+                                                fontFamily: 'Northwell',
+                                                fontSize: 20,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                              ),
+                                            ),
+                                            Text(
+                                              DateFormat('dd-MM-yyyy HH:mm')
+                                                  .format(state.toDo[index]
+                                                          .lastEdit ??
+                                                      DateTime.now()),
+                                              style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.grey),
+                                            ),
+                                            Container(height: 5),
+                                            Expanded(
+                                              child: ListView.builder(
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                itemBuilder: (context, i) =>
+                                                    Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      height: 10,
+                                                      width: 10,
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                              top: 3),
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .secondary),
+                                                        color: state
+                                                                    .toDo[index]
+                                                                    .tasks[i]
+                                                                    .done ??
+                                                                false
+                                                            ? Theme.of(context)
+                                                                .colorScheme
+                                                                .secondary
+                                                            : Colors.white,
+                                                      ),
+                                                      child: state
+                                                                  .toDo[index]
+                                                                  .tasks[i]
+                                                                  .done ??
+                                                              false
+                                                          ? const FittedBox(
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                              child: Center(
+                                                                child: Icon(
+                                                                  Icons.check,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            )
+                                                          : const SizedBox(),
+                                                    ),
+                                                    const Spacer(),
+                                                    Expanded(
+                                                      flex: 20,
+                                                      child: Text(state
+                                                              .toDo[index]
+                                                              .tasks[i]
+                                                              .name ??
+                                                          ''),
+                                                    ),
+                                                  ],
+                                                ),
+                                                itemCount: state
+                                                    .toDo[index].tasks.length,
+                                              ),
+                                            )
+                                          ],
                                         ),
                                       ),
                                     );
                                   },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    padding: const EdgeInsets.all(10),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          state.toDo[index].title ?? '',
-                                          style: TextStyle(
-                                            fontFamily: 'Northwell',
-                                            fontSize: 20,
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                          ),
-                                        ),
-                                        Text(
-                                          DateFormat('dd-MM-yyyy HH:mm').format(
-                                              state.toDo[index].lastEdit ??
-                                                  DateTime.now()),
-                                          style: const TextStyle(
-                                              fontSize: 10, color: Colors.grey),
-                                        ),
-                                        Container(height: 5),
-                                        Expanded(
-                                          child: ListView.builder(
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            itemBuilder: (context, i) => Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  height: 10,
-                                                  width: 10,
-                                                  margin: const EdgeInsets.only(top: 3),
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary),
-                                                    color: state
-                                                                .toDo[index]
-                                                                .tasks[i]
-                                                                .done ??
-                                                            false
-                                                        ? Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary
-                                                        : Colors.white,
-                                                  ),
-                                                  child: state.toDo[index]
-                                                              .tasks[i].done ??
-                                                          false
-                                                      ? const FittedBox(
-                                                          fit: BoxFit.contain,
-                                                          child: Center(
-                                                            child: Icon(
-                                                              Icons.check,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          ),
-                                                        )
-                                                      : const SizedBox(),
-                                                ),
-                                                const Spacer(),
-                                                Expanded(
-                                                  flex: 20,
-                                                  child: Text(state.toDo[index]
-                                                          .tasks[i].name ??
-                                                      ''),
-                                                ),
-                                              ],
-                                            ),
-                                            itemCount:
-                                                state.toDo[index].tasks.length,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          )
-                    // child: ListView.separated(
-                    //   itemBuilder: (context, index) => Container(
-                    //     height: 70,
-                    //     padding: const EdgeInsets.all(10),
-                    //     margin: state.toDo.length - 1 == index
-                    //         ? const EdgeInsets.only(bottom: 20)
-                    //         : EdgeInsets.zero,
-                    //     decoration: BoxDecoration(
-                    //         color: Colors.white,
-                    //         borderRadius: BorderRadius.circular(8)),
-                    //     child: Column(
-                    //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                    //       children: [
-                    //         BlocBuilder<EventBloc, EventState>(
-                    //           builder: (context, st) {
-                    //             if (st is EventLoaded) {
-                    //               return Text(
-                    //                 getEventName(st.events,
-                    //                     state.toDo[index].eventId ?? ''),
-                    //                 style: const TextStyle(
-                    //                     fontSize: 16,
-                    //                     fontWeight: FontWeight.bold),
-                    //               );
-                    //             } else {
-                    //               return const SizedBox();
-                    //             }
-                    //           },
-                    //         ),
-                    //         Text(
-                    //           state.toDo[index].tasks.first.name ?? '',
-                    //           style: const TextStyle(
-                    //               fontSize: 16, fontWeight: FontWeight.bold),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    //   itemCount: state.toDo.length,
-                    //   separatorBuilder: (_, __) => const SizedBox(height: 5),
-                    // ),
-                    )
-            : const SizedBox());
+                                ),
+                              )
+                        // child: ListView.separated(
+                        //   itemBuilder: (context, index) => Container(
+                        //     height: 70,
+                        //     padding: const EdgeInsets.all(10),
+                        //     margin: state.toDo.length - 1 == index
+                        //         ? const EdgeInsets.only(bottom: 20)
+                        //         : EdgeInsets.zero,
+                        //     decoration: BoxDecoration(
+                        //         color: Colors.white,
+                        //         borderRadius: BorderRadius.circular(8)),
+                        //     child: Column(
+                        //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        //       crossAxisAlignment: CrossAxisAlignment.start,
+                        //       children: [
+                        //         BlocBuilder<EventBloc, EventState>(
+                        //           builder: (context, st) {
+                        //             if (st is EventLoaded) {
+                        //               return Text(
+                        //                 getEventName(st.events,
+                        //                     state.toDo[index].eventId ?? ''),
+                        //                 style: const TextStyle(
+                        //                     fontSize: 16,
+                        //                     fontWeight: FontWeight.bold),
+                        //               );
+                        //             } else {
+                        //               return const SizedBox();
+                        //             }
+                        //           },
+                        //         ),
+                        //         Text(
+                        //           state.toDo[index].tasks.first.name ?? '',
+                        //           style: const TextStyle(
+                        //               fontSize: 16, fontWeight: FontWeight.bold),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        //   itemCount: state.toDo.length,
+                        //   separatorBuilder: (_, __) => const SizedBox(height: 5),
+                        // ),
+                        )
+                : const SizedBox()),
+        GestureDetector(
+          onTap: () => Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const ToDoPersistScreen())),
+          child: Container(
+            margin: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor, shape: BoxShape.circle),
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   String getEventName(List<Event> events, String eventId) {

@@ -180,7 +180,7 @@ class _EventPersistScreenState extends State<EventPersistScreen> {
                                       ),
                                     ),
                                     Text(
-                                        "${state.guests[index].firstName ?? ''} ${state.guests[index].lastName ?? ''}"),
+                                        state.guests[index].name ?? ''),
                                   ],
                                 ),
                               ),

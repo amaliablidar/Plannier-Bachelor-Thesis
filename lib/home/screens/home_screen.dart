@@ -7,12 +7,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plannier/home/screens/upload_picture_screen.dart';
 import 'package:plannier/home/widgets/count_down.dart';
 import 'package:plannier/home/widgets/invitation_response.dart';
+import 'package:plannier/invitations/widgets/invitation_card.dart';
 import 'package:plannier/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../events/bloc/event_bloc.dart';
+import '../../events/models/event.dart';
 import '../../invitations/bloc/invitation_bloc.dart' hide InvitationResponse;
 
 class HomeScreen extends StatefulWidget {
@@ -36,16 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            TextButton(
-              onPressed: () async => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const UploadPictureScreen(),
-                ),
-              ),
-              // onPressed: ()async=>onUpload(),
-              child: const Text('Add a photo'),
-            ),
             if (imageRGB != null)
               SizedBox(
                 height: 50,
@@ -95,7 +87,35 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            const InvitationResponse(),
+            BlocBuilder<InvitationBloc, InvitationState>(
+              builder: (context, state) {
+                if (state is InvitationLoaded) {
+                  if (state.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  Event? event;
+                  int invitationIndex = state.invitations.indexWhere(
+                      (element) => element.response == Response.pending);
+                  int eventIndex = state.invitationEvents.indexWhere(
+                      (element) =>
+                          element.id ==
+                          state
+                              .invitations[
+                                  invitationIndex != -1 ? invitationIndex : 0]
+                              .eventId);
+                  if (eventIndex != -1) {
+                    event = state.invitationEvents[eventIndex];
+                  }
+                  if (event != null) {
+                    return InvitationCard(
+                        invitation: state.invitations[
+                            invitationIndex != -1 ? invitationIndex : 0],
+                        event: event);
+                  }
+                }
+                return const SizedBox();
+              },
+            ),
           ],
         ),
       ),

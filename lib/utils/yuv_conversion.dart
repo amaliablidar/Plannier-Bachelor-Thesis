@@ -10,28 +10,34 @@ class YuvConversion {
       final decoder = JpegDecoder();
       Image? decoded;
       String direPath = "/data/data/com.example.event_app";
-      String filePath = "$direPath/0.mp4";
+      String filePath = "$direPath/0.mov";
       var videoFile = File(filePath);
-      FlutterMediaWriter mediaWriter = FlutterMediaWriter();
-      mediaWriter.prepare(videoFile.path, 1200, 2000);
+      print("here ");
 
+      FlutterMediaWriter mediaWriter = FlutterMediaWriter();
+      var prep = await mediaWriter.prepare(videoFile.path, 1200, 2000);
+      print(prep);
+      print(jpegData.length);
       for (int i = 0; i < jpegData.length; i++) {
+        print('for');
+
         decoded = decoder.decodeImage(jpegData[i]);
         if (decoded != null) {
           var imageResized = copyResize(decoded, width: 1200, height: 2000);
 
-          await Future.delayed(const Duration(seconds: 10));
           var pixels = imageResized.getBytes();
           var yuv420 = convertRgbToYuv(pixels, 1200, 2000);
-          await Future.delayed(const Duration(seconds: 5));
-
-          mediaWriter.encode(yuv420);
-          await Future.delayed(const Duration(seconds: 5));
+          var yuvSemiPlanar = convertYUV420ToNV12(yuv420, 1200, 2000);
+          print("encode before");
+          print(yuv420.length);
+          var p = await mediaWriter.encode(yuvSemiPlanar);
+          print("encode $p");
         }
       }
 
       await Future.delayed(const Duration(seconds: 2));
       mediaWriter.stop();
+      print("stop");
       return true;
     } catch (e) {
       print(e);
@@ -93,4 +99,23 @@ class YuvConversion {
 
     return yuv420;
   }
+
+  static Uint8List convertYUV420ToNV12(Uint8List yuvData, int width, int height) {
+    final yLength = width * height;
+    final uvLength = yLength ~/ 4;
+
+    final nv12 = Uint8List(yLength + uvLength*2);
+
+    // Copy Y plane data into NV12 buffer
+    nv12.setRange(0, yLength, yuvData);
+
+    // Interleave U and V plane data into NV12 buffer
+    for (var i = 0; i < uvLength; i++) {
+      nv12[yLength + 2 * i] = yuvData[yLength + i];
+      nv12[yLength + 2 * i + 1] = yuvData[yLength + uvLength + i];
+    }
+
+    return nv12;
+  }
+
 }

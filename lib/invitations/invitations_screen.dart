@@ -40,7 +40,8 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                           );
                     },
                     child: Container(
-                      margin: index == 0 ?const EdgeInsets.only(left:20):null,
+                      margin:
+                          index == 0 ? const EdgeInsets.only(left: 20) : null,
                       child: Card(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20)),
@@ -49,13 +50,14 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                             : Colors.white,
                         child: Container(
                           height: 30,
-                          margin:  const EdgeInsets.symmetric(horizontal: 4),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Center(
                             child: Text(
                               index == 0
                                   ? 'All'
-                                  : capitalizeFirstLetter(Response.values[index - 1].name),
+                                  : capitalizeFirstLetter(
+                                      Response.values[index - 1].name),
                               style: TextStyle(
                                 color: indexPressed == index
                                     ? Colors.white
@@ -69,7 +71,6 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                   ),
                   itemCount: Response.values.length + 1,
                 ),
-
               ),
               Expanded(
                 child: state.isLoading
@@ -84,24 +85,30 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
                             : ListView.separated(
                                 itemBuilder: (context, index) {
                                   Event? event;
-                                  event = state.invitationEvents.firstWhere(
-                                      (element) =>
+                                  int eventIndex = state.invitationEvents
+                                      .indexWhere((element) =>
                                           element.id ==
                                           state.invitations[index].eventId);
-                                  return MultiBlocProvider(
-                                    providers: [
-                                      BlocProvider.value(
-                                        value: context.read<InvitationBloc>(),
+                                  if (eventIndex != -1) {
+                                    event = state.invitationEvents[eventIndex];
+                                  }
+                                  if (event != null) {
+                                    return MultiBlocProvider(
+                                      providers: [
+                                        BlocProvider.value(
+                                          value: context.read<InvitationBloc>(),
+                                        ),
+                                        BlocProvider.value(
+                                          value: context.read<EventBloc>(),
+                                        ),
+                                      ],
+                                      child: InvitationCard(
+                                        event: event,
+                                        invitation: state.invitations[index],
                                       ),
-                                      BlocProvider.value(
-                                        value: context.read<EventBloc>(),
-                                      ),
-                                    ],
-                                    child: InvitationCard(
-                                      event: event,
-                                      invitation: state.invitations[index],
-                                    ),
-                                  );
+                                    );
+                                  }
+                                  return const SizedBox();
                                 },
                                 itemCount: state.invitations.length,
                                 separatorBuilder: (_, __) =>
@@ -117,6 +124,7 @@ class _InvitationsScreenState extends State<InvitationsScreen> {
       },
     );
   }
+
   String capitalizeFirstLetter(String text) {
     var firstLetter = text.substring(0, 1);
     firstLetter = firstLetter.toUpperCase();

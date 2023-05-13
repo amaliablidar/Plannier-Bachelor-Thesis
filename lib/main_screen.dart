@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'events/bloc/event_bloc.dart';
 import 'events/models/event.dart';
 import 'home/screens/home_screen.dart';
+import 'home/screens/upload_picture_screen.dart';
 import 'invitations/bloc/invitation_bloc.dart';
 
 class MainScreen extends StatefulWidget {
@@ -26,122 +27,131 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      top: false,
-      child: Scaffold(
-        appBar: EventAppBar(context: context),
-        body: _currentIndex == 0
-            ? HomeScreen(
-                onSeeAllInvitations: () => setState(() => _currentIndex = 3))
-            : _currentIndex == 1
-                ? MultiBlocProvider(
-                    providers: [
-                      BlocProvider.value(
-                        value: context.read<EventBloc>(),
-                      ),
-                      BlocProvider.value(
-                        value: context.read<InvitationBloc>(),
-                      ),
-                    ],
-                    child: const EventsScreen(),
-                  )
-                : _currentIndex == 2
-                    ? const ToDoScreen()
-                    : MultiBlocProvider(
-                        providers: [
-                          BlocProvider.value(
-                            value: context.read<EventBloc>(),
-                          ),
-                          BlocProvider.value(
-                            value: context.read<InvitationBloc>(),
-                          ),
-                        ],
-                        child: const InvitationsScreen(),
-                      ),
-        bottomNavigationBar: BottomAppBar(
-          elevation: 0,
-          color: Colors.white,
-          child: Container(
-            height: 60,
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BottomTabSelector(
-                  title: 'Home',
-                  onTap: () => setState(() => _currentIndex = 0),
-                  icon: Icons.house,
-                  isSelected: _currentIndex == 0,
+    return Scaffold(
+      appBar: EventAppBar(context: context),
+      floatingActionButton: _currentIndex != -1
+          ? FloatingActionButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const UploadPictureScreen(),
                 ),
-                BottomTabSelector(
-                  title: 'Events',
-                  onTap: () => setState(() => _currentIndex = 1),
-                  icon: Icons.calendar_month,
-                  isSelected: _currentIndex == 1,
-                ),
-                BottomTabSelector(
-                  title: 'To Do',
-                  onTap: () => setState(() => _currentIndex = 2),
-                  icon: Icons.check_box_outlined,
-                  isSelected: _currentIndex == 2,
-                ),
-                BlocBuilder<InvitationBloc, InvitationState>(
-                  builder: (context, state) {
-                    if (state is InvitationLoaded) {
-                      return BottomTabSelector(
-                        title: 'Invitations',
-                        onTap: () => setState(() => _currentIndex = 3),
-                        icon: Icons.email,
-                        isSelected: _currentIndex == 3,
-                        isNew: state.arePending,
-                      );
-                    } else {
-                      return BottomTabSelector(
-                        title: 'Invitations',
-                        onTap: () => setState(() => _currentIndex = 3),
-                        icon: Icons.email,
-                        isSelected: _currentIndex == 3,
-                      );
-                    }
-                  },
-                ),
-              ],
+              ),
+              child: const Icon(Icons.video_camera_back_outlined),
+            )
+          : ElevatedButton(
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all(const CircleBorder()),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => _currentIndex == 1
+                            ? MultiBlocProvider(
+                                providers: [
+                                  BlocProvider.value(
+                                    value: context.read<EventBloc>(),
+                                  ),
+                                  BlocProvider.value(
+                                    value: context.read<InvitationBloc>(),
+                                  ),
+                                ],
+                                child: const EventPersistScreen(),
+                              )
+                            : _currentIndex == 2
+                                ? const ToDoPersistScreen()
+                                : const Scaffold()));
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Icon(Icons.add),
+              ),
             ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      //floating action button position to center
+      body: _currentIndex == 0
+          ? HomeScreen(
+              onSeeAllInvitations: () => setState(() => _currentIndex = 3))
+          : _currentIndex == 1
+              ? MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(
+                      value: context.read<EventBloc>(),
+                    ),
+                    BlocProvider.value(
+                      value: context.read<InvitationBloc>(),
+                    ),
+                  ],
+                  child: const EventsScreen(),
+                )
+              : _currentIndex == 2
+                  ? const ToDoScreen()
+                  : MultiBlocProvider(
+                      providers: [
+                        BlocProvider.value(
+                          value: context.read<EventBloc>(),
+                        ),
+                        BlocProvider.value(
+                          value: context.read<InvitationBloc>(),
+                        ),
+                      ],
+                      child: const InvitationsScreen(),
+                    ),
+      bottomNavigationBar: BottomAppBar(
+        elevation: 0,
+        color: Colors.white,
+        shape: const CircularNotchedRectangle(),
+        child: Container(
+          height: 60,
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              BottomTabSelector(
+                title: 'Home',
+                onTap: () => setState(() => _currentIndex = 0),
+                icon: Icons.house,
+                isSelected: _currentIndex == 0,
+              ),
+              BottomTabSelector(
+                title: 'Events',
+                onTap: () => setState(() => _currentIndex = 1),
+                icon: Icons.calendar_month,
+                isSelected: _currentIndex == 1,
+              ),
+              const SizedBox(width: 50),
+              BottomTabSelector(
+                title: 'To Do',
+                onTap: () => setState(() => _currentIndex = 2),
+                icon: Icons.check_box_outlined,
+                isSelected: _currentIndex == 2,
+              ),
+              BlocBuilder<InvitationBloc, InvitationState>(
+                builder: (context, state) {
+                  if (state is InvitationLoaded) {
+                    return BottomTabSelector(
+                      title: 'Invitations',
+                      onTap: () => setState(() => _currentIndex = 3),
+                      icon: Icons.email,
+                      isSelected: _currentIndex == 3,
+                      isNew: state.arePending,
+                    );
+                  } else {
+                    return BottomTabSelector(
+                      title: 'Invitations',
+                      onTap: () => setState(() => _currentIndex = 3),
+                      icon: Icons.email,
+                      isSelected: _currentIndex == 3,
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ),
-        floatingActionButton: _currentIndex != 0
-            ? ElevatedButton(
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all(const CircleBorder()),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => _currentIndex == 1
-                              ? MultiBlocProvider(
-                                  providers: [
-                                    BlocProvider.value(
-                                      value: context.read<EventBloc>(),
-                                    ),
-                                    BlocProvider.value(
-                                      value: context.read<InvitationBloc>(),
-                                    ),
-                                  ],
-                                  child: const EventPersistScreen(),
-                                )
-                              : _currentIndex == 2
-                                  ? const ToDoPersistScreen()
-                                  : const Scaffold()));
-                },
-                child: const Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Icon(Icons.add),
-                ),
-              )
-            : const SizedBox(),
       ),
     );
   }

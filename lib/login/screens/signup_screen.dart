@@ -187,7 +187,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       : ElevatedButton(
                           onPressed: () {
                             setState(() => isLoading = true);
-
                             context.read<AuthBloc>().add(
                                   AuthSignup(
                                     firstName: firstName.text.trim(),

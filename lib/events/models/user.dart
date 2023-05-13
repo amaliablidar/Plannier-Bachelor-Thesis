@@ -1,52 +1,59 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'event.dart';
 import 'invitation.dart';
 
 class UserPlannier extends Equatable {
   final String? id;
-  final String? firstName;
-  final String? lastName;
+  final String? name;
   final String? email;
   final String? photo;
 
   const UserPlannier({
     this.id,
-    this.firstName,
-    this.lastName,
+    this.name,
     this.email,
     this.photo,
   });
 
   UserPlannier.fromJson(Map<String, dynamic> json, String this.id)
-      : firstName = json['firstName'],
-        lastName = json['lastName'],
+      : name = json['name'],
         photo = json['photo'],
         email = json['email'];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
+    data['name'] = name;
     data['photo'] = photo;
     data['email'] = email;
     return data;
   }
 
-  UserPlannier copyWith(
-          {String? firstName,
-          String? lastName,
-          String? email,
-          String? photo,}) =>
+  UserPlannier copyWith({
+    String? name,
+    String? email,
+    String? photo,
+  }) =>
       UserPlannier(
         id: id,
-        firstName: firstName ?? this.firstName,
-        lastName: lastName ?? this.lastName,
+        name: name ?? this.name,
+
         photo: photo ?? this.photo,
         email: email ?? this.email,
       );
 
+  UserPlannier.fromFirebaseUser(User? user)
+      : id = user?.uid,
+        name = user?.displayName,
+        email = user?.email,
+        photo = user?.photoURL;
+
   @override
-  List<Object?> get props =>
-      [id, firstName, lastName, photo, email, ];
+  List<Object?> get props => [
+        id,
+        name,
+        photo,
+        email,
+      ];
 }
