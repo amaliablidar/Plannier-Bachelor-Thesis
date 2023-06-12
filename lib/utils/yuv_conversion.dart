@@ -25,12 +25,13 @@ class YuvConversion {
         if (decoded != null) {
           var imageResized = copyResize(decoded, width: 1200, height: 2000);
 
-          var pixels = imageResized.getBytes();
-          var yuv420 = convertRgbToYuv(pixels, 1200, 2000);
-          var yuvSemiPlanar = convertYUV420ToNV12(yuv420, 1200, 2000);
+          var pixels = imageResized.getBytes(format: Format.argb);
+          var yuv420 = convertRgbToYuv444(pixels, 1200, 2000);
+
+          // var yuvSemiPlanar = convertYUV420ToNV12(yuv420, 1200, 2000);
           print("encode before");
           print(yuv420.length);
-          var p = await mediaWriter.encode(yuvSemiPlanar);
+          var p = await mediaWriter.encode(pixels);
           print("encode $p");
         }
       }
@@ -45,7 +46,7 @@ class YuvConversion {
     }
   }
 
-  static Uint8List convertRgbToYuv(Uint8List pixels, int width, int height) {
+  static Uint8List convertRgbToYuv444(Uint8List pixels, int width, int height) {
     final int ySize = width * height;
     final Uint8List yuvy = Uint8List(ySize);
     final Uint8List yuvu = Uint8List(ySize);
@@ -61,12 +62,40 @@ class YuvConversion {
       yuvy[index] = yValue.clamp(0, 255);
 
       int uValue = (-0.147 * r - 0.289 * g + 0.436 * b + 128).round();
-      yuvu[index] = uValue.clamp(0, 255);
+      yuvu[index] = uValue.clamp(1, 255);
 
       int vValue = (0.615 * r - 0.515 * g - 0.100 * b + 128).round();
-      yuvv[index] = vValue.clamp(0, 255);
+      yuvv[index] = vValue.clamp(1, 255);
       index++;
     }
+    var yuv1 = convertYUV444toYUV420(yuvy, yuvu, yuvv, width, height);
+    return yuv1;
+  }
+
+  static Uint8List convertRgbToYuv444Without128(
+      Uint8List pixels, int width, int height) {
+    final int ySize = width * height;
+    final Uint8List yuvy = Uint8List(ySize);
+    final Uint8List yuvu = Uint8List(ySize);
+    final Uint8List yuvv = Uint8List(ySize);
+
+    int index = 0;
+    for (int i = 0; i < pixels.length; i = i + 4) {
+      int r = pixels[i + 0];
+      int g = pixels[i + 1];
+      int b = pixels[i + 2];
+
+      final int yValue = (0.299 * r + 0.587 * g + 0.114 * b).round();
+      yuvy[index] = yValue.clamp(16, 235);
+
+      int uValue = (-0.147 * r - 0.289 * g + 0.436 * b + 112).round();
+      yuvu[index] = uValue.clamp(16, 240);
+
+      int vValue = (0.615 * r - 0.515 * g - 0.100 * b + 112).round();
+      yuvv[index] = vValue.clamp(16, 240);
+      index++;
+    }
+
     var yuv1 = convertYUV444toYUV420(yuvy, yuvu, yuvv, width, height);
     return yuv1;
   }
@@ -100,11 +129,12 @@ class YuvConversion {
     return yuv420;
   }
 
-  static Uint8List convertYUV420ToNV12(Uint8List yuvData, int width, int height) {
+  static Uint8List convertYUV420ToNV12(
+      Uint8List yuvData, int width, int height) {
     final yLength = width * height;
     final uvLength = yLength ~/ 4;
 
-    final nv12 = Uint8List(yLength + uvLength*2);
+    final nv12 = Uint8List(yLength + uvLength * 2);
 
     // Copy Y plane data into NV12 buffer
     nv12.setRange(0, yLength, yuvData);
@@ -117,5 +147,4 @@ class YuvConversion {
 
     return nv12;
   }
-
 }

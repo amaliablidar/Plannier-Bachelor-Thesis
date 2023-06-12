@@ -24,7 +24,7 @@ class AVAssetWriterWrapper{
     
     func prepare(outputPath: String, width:Int, height:Int)->String {
         
-        var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("2.mp4")
+        var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("32.mp4")
         
         do{
             assetwriter = try AVAssetWriter(outputURL: url!, fileType: .mp4)
@@ -34,68 +34,79 @@ class AVAssetWriterWrapper{
         }
         settingsAssistant =  [
             AVVideoCodecKey: AVVideoCodecType.h264,
-            AVVideoWidthKey: 1920,
-            AVVideoHeightKey: 1080,
-            
+            AVVideoWidthKey: 1080,
+            AVVideoHeightKey: 1920,
         ]
         
         let sourcePixelBufferAttributesDictionary = [
-            kCVPixelBufferPixelFormatTypeKey as String : NSNumber(value: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange),
+            kCVPixelBufferPixelFormatTypeKey as String : NSNumber(value: kCVPixelFormatType_32ARGB),
             kCVPixelBufferWidthKey as String: NSNumber(value: width),
-            kCVPixelBufferHeightKey as String: NSNumber(value: height),
-            kCVPixelBufferBytesPerRowAlignmentKey as String: NSNumber(value:width * 4)
-
+            kCVPixelBufferHeightKey as String: NSNumber(value: height)
         ]
-        
-        
+
+
         assetWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: settingsAssistant)
         assetWriterAdaptor  = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: assetWriterInput!, sourcePixelBufferAttributes: sourcePixelBufferAttributesDictionary)
         assetwriter?.add(assetWriterInput!)
         assetwriter?.startWriting()
         assetwriter?.startSession(atSourceTime: CMTime.zero)
         return (url!.path);
-        
-        
     }
-    
+
     func encode(frame: Data?)->String {
+        
         var pixelBuffer: CVPixelBuffer?
         let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue,
              kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue] as CFDictionary
-        
+
         let ySize = 1200 * 2000
-        let uSize = ySize/2
+        let uSize = ySize
 
         let status = CVPixelBufferCreate(kCFAllocatorDefault,
                                          1200,
                                          2000,
-                                         kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+                                         kCVPixelFormatType_32ARGB,
                                          attrs,
                                          &pixelBuffer)
-        
-        // Lock the base address of the pixel buffer
+
+        // At this point, you h
         CVPixelBufferLockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
-        
+
         // Copy the Y plane data into the pixel buffer
+//        if let yDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 0) {
+//            let yData = frame!.subdata(in: 0..<ySize)
+//            yData.copyBytes(to: yDestination.assumingMemoryBound(to: UInt8.self), count: ySize)
+//
+//        }
+//
+////         Copy the UV plane data into the pixel buffer
+//        if let uDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 1) {
+//            let uData = frame!.subdata(in: ySize..<ySize+uSize)
+//            uData.copyBytes(to: uDestination.assumingMemoryBound(to: UInt8.self), count: uSize)
+//        }
+//
+//        if let vDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 2) {
+//            let vData = frame!.subdata(in: ySize+uSize..<ySize+uSize*2)
+//            vData.copyBytes(to: vDestination.assumingMemoryBound(to: UInt8.self), count: uSize)
+//        }
         if let yDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 0) {
-            let yData = frame!.subdata(in: 0..<ySize)
-            yData.copyBytes(to: yDestination.assumingMemoryBound(to: UInt8.self), count: ySize)
+            let yData = frame!.subdata(in: 0..<ySize*4)
+            yData.copyBytes(to: yDestination.assumingMemoryBound(to: UInt8.self), count: ySize*4)
+            
         }
-        
-        // Copy the UV plane data into the pixel buffer
-        if let uDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 1) {
-            let uData = frame!.subdata(in: ySize..<ySize+uSize)
-            uData.copyBytes(to: uDestination.assumingMemoryBound(to: UInt8.self), count: uSize)
-        }
+
+
+
+
 
         // Unlock the base address of the pixel buffer
         CVPixelBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
         
         //determine how many frames we need to generate
-        let framesPerSecond = 30
-        let totalFrames = 3 * framesPerSecond
+        let framesPerSecond = 10
+        let totalFrames = 10 * framesPerSecond
         
-        //        while frameCount < totalFrames + frameCount {
+        while frameCount < totalFrames + frameCount {
         if assetWriterInput!.isReadyForMoreMediaData {
             let frameTime = CMTimeMake(value: Int64(frameCount), timescale: Int32(framesPerSecond))
             
@@ -107,12 +118,14 @@ class AVAssetWriterWrapper{
         else{
             return "great failure"
         }
-        //        }
+        }
 
         return "great success"
         
         
     }
+    
+
     
     func stop() {
         assetWriterInput?.markAsFinished()

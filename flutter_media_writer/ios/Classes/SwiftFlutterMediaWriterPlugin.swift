@@ -3,7 +3,7 @@ import UIKit
 
 public class SwiftFlutterMediaWriterPlugin: NSObject, FlutterPlugin {
     var avAssetWrapper: AVAssetWriterWrapper
-    
+
     override
     init() {
         self.avAssetWrapper = AVAssetWriterWrapper()
