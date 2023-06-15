@@ -12,27 +12,26 @@ class YuvConversion {
       String direPath = "/data/data/com.example.event_app";
       String filePath = "$direPath/0.mov";
       var videoFile = File(filePath);
-      print("here ");
 
       FlutterMediaWriter mediaWriter = FlutterMediaWriter();
-      var prep = await mediaWriter.prepare(videoFile.path, 1200, 2000);
-      print(prep);
-      print(jpegData.length);
-      for (int i = 0; i < jpegData.length; i++) {
-        print('for');
+      print("preparing");
+      await mediaWriter.prepare(videoFile.path, 1200, 2000);
+      print("done preparing");
 
+      for (int i = 0; i < jpegData.length; i++) {
         decoded = decoder.decodeImage(jpegData[i]);
         if (decoded != null) {
           var imageResized = copyResize(decoded, width: 1200, height: 2000);
 
           var pixels = imageResized.getBytes(format: Format.argb);
-          var yuv420 = convertRgbToYuv444(pixels, 1200, 2000);
+          print("start waiting");
+          await Future.delayed(const Duration(seconds: 2));
+          print("start encoding");
 
-          // var yuvSemiPlanar = convertYUV420ToNV12(yuv420, 1200, 2000);
-          print("encode before");
-          print(yuv420.length);
-          var p = await mediaWriter.encode(pixels);
-          print("encode $p");
+          encodeMethod(pixels, mediaWriter);
+          print("wait");
+
+          await Future.delayed(const Duration(seconds: 2));
         }
       }
 
@@ -54,9 +53,9 @@ class YuvConversion {
 
     int index = 0;
     for (int i = 0; i < pixels.length; i = i + 4) {
-      int r = pixels[i + 0];
-      int g = pixels[i + 1];
-      int b = pixels[i + 2];
+      int r = pixels[i + 1];
+      int g = pixels[i + 2];
+      int b = pixels[i + 3];
 
       final int yValue = (0.299 * r + 0.587 * g + 0.114 * b).round();
       yuvy[index] = yValue.clamp(0, 255);
@@ -146,5 +145,16 @@ class YuvConversion {
     }
 
     return nv12;
+  }
+
+  static Future<void> encodeMethod(
+      Uint8List pixels, FlutterMediaWriter mediaWriter) async {
+    var yuv420 = convertRgbToYuv444(pixels, 1200, 2000);
+    if (Platform.isIOS) {
+      await mediaWriter.encode(pixels);
+    } else {
+      print("here");
+      await mediaWriter.encode(yuv420);
+    }
   }
 }
