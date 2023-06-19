@@ -24,7 +24,7 @@ class AVAssetWriterWrapper{
     
     func prepare(outputPath: String, width:Int, height:Int)->String {
         
-        var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("32.mp4")
+        var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("33.mp4")
         
         do{
             assetwriter = try AVAssetWriter(outputURL: url!, fileType: .mp4)
@@ -72,23 +72,7 @@ class AVAssetWriterWrapper{
         // At this point, you h
         CVPixelBufferLockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
 
-        // Copy the Y plane data into the pixel buffer
-//        if let yDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 0) {
-//            let yData = frame!.subdata(in: 0..<ySize)
-//            yData.copyBytes(to: yDestination.assumingMemoryBound(to: UInt8.self), count: ySize)
-//
-//        }
-//
-////         Copy the UV plane data into the pixel buffer
-//        if let uDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 1) {
-//            let uData = frame!.subdata(in: ySize..<ySize+uSize)
-//            uData.copyBytes(to: uDestination.assumingMemoryBound(to: UInt8.self), count: uSize)
-//        }
-//
-//        if let vDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 2) {
-//            let vData = frame!.subdata(in: ySize+uSize..<ySize+uSize*2)
-//            vData.copyBytes(to: vDestination.assumingMemoryBound(to: UInt8.self), count: uSize)
-//        }
+
         if let yDestination = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer!, 0) {
             let yData = frame!.subdata(in: 0..<ySize*4)
             yData.copyBytes(to: yDestination.assumingMemoryBound(to: UInt8.self), count: ySize*4)
@@ -96,11 +80,8 @@ class AVAssetWriterWrapper{
         }
 
 
-
-
-
         // Unlock the base address of the pixel buffer
-        CVPixelBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+        CVPixelaBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
         
         //determine how many frames we need to generate
         let framesPerSecond = 10

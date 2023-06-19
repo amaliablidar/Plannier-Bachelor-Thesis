@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_picker_view/multi_image_picker_view.dart';
 import 'package:plannier/utils/colors.dart';
+import 'package:plannier/utils/platform_specific_dialog.dart';
 
 import '../../utils/yuv_conversion.dart';
 
@@ -25,6 +26,7 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
   );
   List<ImageFile> images = [];
   bool isLoading = false;
+  bool isSuccess = false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,78 +39,81 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    GestureDetector(
-                      onTap: () async {
-                        final ImagePicker picker = ImagePicker();
-                        final XFile? image =
-                            await picker.pickImage(source: ImageSource.gallery);
-                        final File file = File(image?.path ?? '');
-                        print(image?.path);
-                        final bytes = await file.readAsBytes();
-                        var image1 = ImageFile('',
-                            name: 'name', extension: '.jpg', bytes: bytes, path: image?.path);
-                        images.add(image1);
-                        print(image1);
-                      },
-                      child: Container(
-                        child: Text("Add photo"),
+                    // GestureDetector(
+                    //   onTap: () async {
+                    //     final ImagePicker picker = ImagePicker();
+                    //     final XFile? image =
+                    //         await picker.pickImage(source: ImageSource.gallery);
+                    //     final File file = File(image?.path ?? '');
+                    //     print(image?.path);
+                    //     final bytes = await file.readAsBytes();
+                    //     var image1 = ImageFile('',
+                    //         name: 'name',
+                    //         extension: '.jpg',
+                    //         bytes: bytes,
+                    //         path: image?.path);
+                    //     images.add(image1);
+                    //     print(image1);
+                    //   },
+                    //   child: Container(
+                    //     child: Text("Add photo"),
+                    //   ),
+                    // )
+                    MultiImagePickerView(
+                      onChange: (list) =>
+                          setState(() => images = list.toList()),
+                      addButtonTitle: 'Upload photos',
+                      initialContainerBuilder: (context, picker) =>
+                          GestureDetector(
+                        onTap: picker,
+                        child: Container(
+                          margin: const EdgeInsets.all(20),
+                          height: 200,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                FaIcon(
+                                  FontAwesomeIcons.upload,
+                                  color: PlannerieColors.primary,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Add Photos',
+                                  style: TextStyle(
+                                      fontFamily: 'Northwell',
+                                      fontSize: 40,
+                                      color: PlannerieColors.primary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                    )
-                    // MultiImagePickerView(
-                    //   onChange: (list) =>
-                    //       setState(() => images = list.toList()),
-                    //   addButtonTitle: 'Upload photos',
-                    //   initialContainerBuilder: (context, picker) =>
-                    //       GestureDetector(
-                    //     onTap: picker,
-                    //     child: Container(
-                    //       margin: const EdgeInsets.all(20),
-                    //       height: 200,
-                    //       width: double.infinity,
-                    //       decoration: BoxDecoration(
-                    //         color: Colors.white,
-                    //         borderRadius: BorderRadius.circular(10),
-                    //       ),
-                    //       child: Center(
-                    //         child: Row(
-                    //           mainAxisAlignment: MainAxisAlignment.center,
-                    //           children: const [
-                    //             FaIcon(
-                    //               FontAwesomeIcons.upload,
-                    //               color: PlannerieColors.primary,
-                    //             ),
-                    //             SizedBox(width: 10),
-                    //             Text(
-                    //               'Add Photos',
-                    //               style: TextStyle(
-                    //                   fontFamily: 'Northwell',
-                    //                   fontSize: 40,
-                    //                   color: PlannerieColors.primary),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    //   addMoreBuilder: (context, picker) => GestureDetector(
-                    //     onTap: picker,
-                    //     child: Container(
-                    //       decoration: BoxDecoration(
-                    //         color: Colors.white,
-                    //         borderRadius: BorderRadius.circular(10),
-                    //       ),
-                    //       child: const Center(
-                    //         child: Icon(
-                    //           Icons.add,
-                    //           size: 30,
-                    //           color: PlannerieColors.primary,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    //   controller: controller,
-                    //   padding: const EdgeInsets.all(10),
-                    // ),
+                      addMoreBuilder: (context, picker) => GestureDetector(
+                        onTap: picker,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.add,
+                              size: 30,
+                              color: PlannerieColors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      controller: controller,
+                      padding: const EdgeInsets.all(10),
+                    ),
                   ],
                 ),
               ),
@@ -143,10 +148,12 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
                               imagesBytes.add(bytesList);
                             }
                           }
-                          await YuvConversion.jpgToYuv(imagesBytes);
+                          await YuvConversion.jpgToYuv(
+                            imagesBytes,
+                          );
+
                           setState(() => isLoading = false);
-                        }
-                        catch(e){
+                        } catch (e) {
                           print(e);
                         }
                       },

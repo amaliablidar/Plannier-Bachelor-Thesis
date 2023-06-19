@@ -33,9 +33,4 @@ class FlutterMediaWriter  {
     return await _methodChannel.invokeMethod('stop');
   }
 
-  Future<String> test() async {
-    print("invoke test");
-    return await _methodChannel.invokeMethod('test');
-  }
-
 }

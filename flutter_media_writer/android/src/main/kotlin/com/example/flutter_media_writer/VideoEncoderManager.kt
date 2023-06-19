@@ -303,7 +303,7 @@ class VideoEncoderManager : MediaCodec.Callback() {
             TAG,
             "createOutputFormat. Status: success. Message: Output format available for encoder."
         )
-        return result
+        return result;
     }
 
     /**

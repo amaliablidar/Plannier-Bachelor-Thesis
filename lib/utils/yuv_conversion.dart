@@ -10,34 +10,34 @@ class YuvConversion {
       final decoder = JpegDecoder();
       Image? decoded;
       String direPath = "/data/data/com.example.event_app";
-      String filePath = "$direPath/0.mov";
+      String filePath = "$direPath/0.mp4";
       var videoFile = File(filePath);
-
       FlutterMediaWriter mediaWriter = FlutterMediaWriter();
-      print("preparing");
+      print("prepare ${jpegData.length}");
+
       await mediaWriter.prepare(videoFile.path, 1200, 2000);
-      print("done preparing");
+      print("decoded ${jpegData.length}");
 
       for (int i = 0; i < jpegData.length; i++) {
         decoded = decoder.decodeImage(jpegData[i]);
+        print("decoded $decoded");
         if (decoded != null) {
           var imageResized = copyResize(decoded, width: 1200, height: 2000);
+          print('image Resized');
+
+          await Future.delayed(const Duration(seconds: 10));
+          print('image Resized after');
 
           var pixels = imageResized.getBytes(format: Format.argb);
-          print("start waiting");
           await Future.delayed(const Duration(seconds: 2));
-          print("start encoding");
+          print('encode method');
 
           encodeMethod(pixels, mediaWriter);
-          print("wait");
-
-          await Future.delayed(const Duration(seconds: 2));
         }
       }
 
       await Future.delayed(const Duration(seconds: 2));
       mediaWriter.stop();
-      print("stop");
       return true;
     } catch (e) {
       print(e);
@@ -71,34 +71,6 @@ class YuvConversion {
     return yuv1;
   }
 
-  static Uint8List convertRgbToYuv444Without128(
-      Uint8List pixels, int width, int height) {
-    final int ySize = width * height;
-    final Uint8List yuvy = Uint8List(ySize);
-    final Uint8List yuvu = Uint8List(ySize);
-    final Uint8List yuvv = Uint8List(ySize);
-
-    int index = 0;
-    for (int i = 0; i < pixels.length; i = i + 4) {
-      int r = pixels[i + 0];
-      int g = pixels[i + 1];
-      int b = pixels[i + 2];
-
-      final int yValue = (0.299 * r + 0.587 * g + 0.114 * b).round();
-      yuvy[index] = yValue.clamp(16, 235);
-
-      int uValue = (-0.147 * r - 0.289 * g + 0.436 * b + 112).round();
-      yuvu[index] = uValue.clamp(16, 240);
-
-      int vValue = (0.615 * r - 0.515 * g - 0.100 * b + 112).round();
-      yuvv[index] = vValue.clamp(16, 240);
-      index++;
-    }
-
-    var yuv1 = convertYUV444toYUV420(yuvy, yuvu, yuvv, width, height);
-    return yuv1;
-  }
-
   static Uint8List convertYUV444toYUV420(Uint8List yData, Uint8List uData,
       Uint8List vData, int width, int height) {
     final yLength = width * height;
@@ -128,33 +100,14 @@ class YuvConversion {
     return yuv420;
   }
 
-  static Uint8List convertYUV420ToNV12(
-      Uint8List yuvData, int width, int height) {
-    final yLength = width * height;
-    final uvLength = yLength ~/ 4;
-
-    final nv12 = Uint8List(yLength + uvLength * 2);
-
-    // Copy Y plane data into NV12 buffer
-    nv12.setRange(0, yLength, yuvData);
-
-    // Interleave U and V plane data into NV12 buffer
-    for (var i = 0; i < uvLength; i++) {
-      nv12[yLength + 2 * i] = yuvData[yLength + i];
-      nv12[yLength + 2 * i + 1] = yuvData[yLength + uvLength + i];
-    }
-
-    return nv12;
-  }
-
   static Future<void> encodeMethod(
       Uint8List pixels, FlutterMediaWriter mediaWriter) async {
     var yuv420 = convertRgbToYuv444(pixels, 1200, 2000);
     if (Platform.isIOS) {
       await mediaWriter.encode(pixels);
     } else {
-      print("here");
       await mediaWriter.encode(yuv420);
     }
+    await Future.delayed(const Duration(seconds: 2));
   }
 }
