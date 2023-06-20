@@ -81,7 +81,7 @@ class _EventPersistScreenState extends State<EventPersistScreen> {
                                       onPressed: () {
                                         context.read<EventBloc>().add(
                                               EventDelete(
-                                                eventId: widget.event!.id ?? '',
+                                                event: widget.event,
                                                 onFinished: () {
                                                   Navigator.pop(context);
                                                   Navigator.pop(context);
@@ -261,6 +261,7 @@ class _EventPersistScreenState extends State<EventPersistScreen> {
                                                     Navigator.pop(context),
                                               ),
                                             );
+                                        context.read<InvitationBloc>().add(InvitationFetch());
                                       }
                                 : null,
                             style: ButtonStyle(

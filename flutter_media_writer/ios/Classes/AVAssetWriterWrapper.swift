@@ -81,7 +81,7 @@ class AVAssetWriterWrapper{
 
 
         // Unlock the base address of the pixel buffer
-        CVPixelaBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+        CVPixelBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
         
         //determine how many frames we need to generate
         let framesPerSecond = 10

@@ -150,6 +150,38 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
                           }
                           await YuvConversion.jpgToYuv(
                             imagesBytes,
+                            () => showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text("Success"),
+                                content: const Text("Video complete"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Okay'),
+                                  )
+                                ],
+                              ),
+                            ),
+                            () => showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text("Error"),
+                                content: const Text("Something went wrong"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Okay'),
+                                  )
+                                ],
+                              ),
+                            ),
                           );
 
                           setState(() => isLoading = false);

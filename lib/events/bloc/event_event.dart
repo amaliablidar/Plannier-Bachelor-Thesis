@@ -33,11 +33,11 @@ class EventFetch extends EventEvent {
 }
 
 class EventDelete extends EventEvent {
-  final String eventId;
+  final Event? event;
   final VoidCallback? onFinished;
 
-  EventDelete({required this.eventId, this.onFinished});
+  EventDelete({required this.event, this.onFinished});
 
   @override
-  List<Object?> get props => [eventId, onFinished];
+  List<Object?> get props => [event, onFinished];
 }

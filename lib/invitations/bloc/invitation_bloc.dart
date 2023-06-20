@@ -134,7 +134,6 @@ class InvitationBloc extends Bloc<InvitationEvent, InvitationState> {
         }
         var index = allInvitations
             .indexWhere((element) => element.response == Response.pending);
-
         emit(s.copyWith(
             invitations: filteredInvitations,
             isLoading: false,

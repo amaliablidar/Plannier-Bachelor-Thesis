@@ -108,9 +108,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   if (event != null) {
                     return InvitationCard(
-                        invitation: state.invitations[
-                            invitationIndex != -1 ? invitationIndex : 0],
-                        event: event);
+                      invitation: state.invitations[
+                          invitationIndex != -1 ? invitationIndex : 0],
+                      event: event,
+                    );
                   }
                 }
                 return const SizedBox();

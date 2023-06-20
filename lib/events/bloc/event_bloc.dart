@@ -175,12 +175,32 @@ class EventBloc extends Bloc<EventEvent, EventState> {
       final s = state;
       if (s is EventLoaded) {
         emit(s.copyWith(isLoading: true));
-        await ref.doc(event.eventId).delete();
+        await ref.doc(event.event?.id).delete();
         QuerySnapshot querySnapshot = await ref.get();
         final allEvents = querySnapshot.docs
             .map((doc) =>
                 Event.fromJson(doc.data() as Map<String, dynamic>, doc.id))
             .toList();
+        if(event.event!=null) {
+          for (var eventGuestId in event.event!.guests.keys) {
+            var containsGuest = event.event!.guests.keys.contains(eventGuestId);
+            if (!containsGuest) {
+              try {
+                var ref = FirebaseFirestore.instance
+                    .collection('/users/$eventGuestId/invitations');
+                var invitationsJson = await ref.get();
+                var invitationList = invitationsJson.docs
+                    .map((e) => Invitation.fromJson(e.data(), e.id))
+                    .toList();
+                var invitationToDelete = invitationList
+                    .firstWhere((element) => element.eventId == event.event!.id);
+                await ref.doc(invitationToDelete.id).delete();
+              } catch (e) {
+                print(e);
+              }
+            }
+          }
+        }
         emit(s.copyWith(isLoading: false, events: allEvents));
         event.onFinished?.call();
       }

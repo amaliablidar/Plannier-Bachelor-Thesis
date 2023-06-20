@@ -43,8 +43,11 @@ class EventsScreen extends StatelessWidget {
                                     value: context.read<InvitationBloc>(),
                                   ),
                                 ],
-                                child: EventCard(
-                                  event: state.events[index],
+                                child: Container(
+                                  margin: state.events.length-1==index?const EdgeInsets.only(bottom: 10):EdgeInsets.zero,
+                                  child: EventCard(
+                                    event: state.events[index],
+                                  ),
                                 ),
                               ),
                               itemCount: state.events.length,
