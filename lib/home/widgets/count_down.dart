@@ -1,13 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:plannier/events/models/event.dart';
-import 'package:plannier/events/screens/event_detail_screen.dart';
-import 'package:plannier/utils/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:plannier/events/screens/event_detail_screen.dart';
+import 'package:plannier/utils/colors.dart';
 
 import '../../events/bloc/event_bloc.dart';
 import '../../invitations/bloc/invitation_bloc.dart';
@@ -89,47 +87,57 @@ class _CountDownState extends State<CountDown> {
                       end: Alignment.bottomCenter,
                     ),
                   ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(state.nextEvent?.name ?? '',
-                            style: const TextStyle(
-                                fontFamily: 'Northwell',
-                                fontSize: 48,
-                                color: Colors.white)),
-                        Text(
-                          DateFormat('dd MMM yyyy')
-                              .format(state.nextEvent?.date ?? DateTime.now()),
-                          style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w400),
-                        ),
-                        const SizedBox(height: 10),
-                        CountdownTimer(
-                          controller: controller,
-                          endWidget: const Text(
-                            'The event is happening now',
-                            style: TextStyle(color: Colors.white),
+                  child: state.nextEvent != null
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(state.nextEvent?.name ?? '',
+                                  style: const TextStyle(
+                                      fontFamily: 'Northwell',
+                                      fontSize: 48,
+                                      color: Colors.white)),
+                              Text(
+                                DateFormat('dd MMM yyyy').format(
+                                    state.nextEvent?.date ?? DateTime.now()),
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                              const SizedBox(height: 10),
+                              CountdownTimer(
+                                controller: controller,
+                                endWidget: const Text(
+                                  'The event is happening now',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                textStyle: GoogleFonts.rajdhani(
+                                    color: Colors.white, fontSize: 30),
+                                onEnd: onEnd,
+                                endTime: state.nextEvent?.date
+                                        .millisecondsSinceEpoch ??
+                                    DateTime.now().millisecondsSinceEpoch,
+                                widgetBuilder: (context, timeLeft) => Text(
+                                  "${timeLeft?.days != null ? '${timeLeft?.days.toString()} Days,' : ''} ${timeLeft?.hours != null ? '${timeLeft?.hours.toString()} Hours,' : ''} ${timeLeft?.min != null ? '${timeLeft?.min.toString()} Min' : ''}",
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ],
                           ),
-                          textStyle: GoogleFonts.rajdhani(
-                              color: Colors.white, fontSize: 30),
-                          onEnd: onEnd,
-                          endTime:
-                              state.nextEvent?.date.millisecondsSinceEpoch ??
-                                  DateTime.now().millisecondsSinceEpoch,
-                          widgetBuilder: (context, timeLeft) => Text(
-                            "${timeLeft?.days != null ? '${timeLeft?.days.toString()} Days,' : ''} ${timeLeft?.hours != null ? '${timeLeft?.hours.toString()} Hours,' : ''} ${timeLeft?.min != null ? '${timeLeft?.min.toString()} Min' : ''}",
-                            style: const TextStyle(
+                        )
+                      : const Center(
+                          child: Text(
+                            "No events in the upcoming future",
+                            style: TextStyle(
+                                color: Colors.white,
                                 fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),

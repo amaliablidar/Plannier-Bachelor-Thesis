@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plannier/to_do/models/task.dart';
@@ -73,9 +72,11 @@ class _ToDoPersistScreenState extends State<ToDoPersistScreen> {
                           if (state is ToDoLoaded) {
                             return state.isLoading
                                 ? const Padding(
-                                    padding:
-                                        EdgeInsets.only(right: 20, left: 10),
-                                    child: CircularProgressIndicator(),
+                                    padding: EdgeInsets.only(
+                                        right: 20, left: 10, top: 5),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
                                   )
                                 : TextButton(
                                     onPressed: () {

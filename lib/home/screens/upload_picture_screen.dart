@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_picker_view/multi_image_picker_view.dart';
 import 'package:plannier/utils/colors.dart';
-import 'package:plannier/utils/platform_specific_dialog.dart';
 
 import '../../utils/yuv_conversion.dart';
 
@@ -24,7 +23,9 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
     withReadStream: true,
     allowedImageTypes: ['png', 'jpg', 'jpeg'],
   );
-  List<ImageFile> images = [];
+  final ImagePicker _picker = ImagePicker();
+
+  List<File> images = [];
   bool isLoading = false;
   bool isSuccess = false;
 
@@ -35,89 +36,118 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
         width: double.infinity,
         child: Column(
           children: [
-            Expanded(
-              child: SingleChildScrollView(
+            if (images.isNotEmpty)
+              Expanded(
+                child: GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.all(20),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 3,
+                  children: List.generate(
+                    images.length + 1,
+                    (index) => index == images.length
+                        ? GestureDetector(
+                            onTap: () async {
+                              var imagesList = await _picker.pickMultiImage();
+                              for (var image in imagesList) {
+                                final File imageFile = File(image.path ?? '');
+                                setState(() => images.add(imageFile));
+                              }
+                            },
+                            child: Container(
+                              height: 150,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.add,
+                                color: Theme.of(context).primaryColor,
+                                size: 20,
+                              ),
+                            ),
+                          )
+                        : Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              SizedBox(
+                                height: 150,
+                                width: 150,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.memory(
+                                    images[index].readAsBytesSync(),
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => setState(
+                                    () => images.remove(images[index])),
+                                child: Card(
+                                  color: Colors.white.withOpacity(0.5),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(80)),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(2.0),
+                                    child: Icon(
+                                      Icons.close,
+                                      color: Colors.black,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              )
+            else
+              Expanded(
                 child: Column(
                   children: [
-                    // GestureDetector(
-                    //   onTap: () async {
-                    //     final ImagePicker picker = ImagePicker();
-                    //     final XFile? image =
-                    //         await picker.pickImage(source: ImageSource.gallery);
-                    //     final File file = File(image?.path ?? '');
-                    //     print(image?.path);
-                    //     final bytes = await file.readAsBytes();
-                    //     var image1 = ImageFile('',
-                    //         name: 'name',
-                    //         extension: '.jpg',
-                    //         bytes: bytes,
-                    //         path: image?.path);
-                    //     images.add(image1);
-                    //     print(image1);
-                    //   },
-                    //   child: Container(
-                    //     child: Text("Add photo"),
-                    //   ),
-                    // )
-                    MultiImagePickerView(
-                      onChange: (list) =>
-                          setState(() => images = list.toList()),
-                      addButtonTitle: 'Upload photos',
-                      initialContainerBuilder: (context, picker) =>
-                          GestureDetector(
-                        onTap: picker,
-                        child: Container(
-                          margin: const EdgeInsets.all(20),
-                          height: 200,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                FaIcon(
-                                  FontAwesomeIcons.upload,
-                                  color: PlannerieColors.primary,
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Add Photos',
-                                  style: TextStyle(
-                                      fontFamily: 'Northwell',
-                                      fontSize: 40,
-                                      color: PlannerieColors.primary),
-                                ),
-                              ],
-                            ),
+                    GestureDetector(
+                      onTap: () async {
+                        var imagesList = await _picker.pickMultiImage();
+                        for (var image in imagesList) {
+                          final File imageFile = File(image.path);
+                          setState(() => images.add(imageFile));
+                        }
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.all(20),
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              FaIcon(
+                                FontAwesomeIcons.upload,
+                                color: PlannerieColors.primary,
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                'Add Photos',
+                                style: TextStyle(
+                                    fontFamily: 'Northwell',
+                                    fontSize: 40,
+                                    color: PlannerieColors.primary),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      addMoreBuilder: (context, picker) => GestureDetector(
-                        onTap: picker,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.add,
-                              size: 30,
-                              color: PlannerieColors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      controller: controller,
-                      padding: const EdgeInsets.all(10),
                     ),
                   ],
                 ),
               ),
-            ),
             Container(
               margin: const EdgeInsets.all(20),
               height: 50,
@@ -136,52 +166,15 @@ class _UploadPictureScreenState extends State<UploadPictureScreen> {
                         try {
                           setState(() => isLoading = true);
                           List<Uint8List> imagesBytes = [];
-                          print(images.length);
                           for (var image in images) {
-                            print("image for ${image}");
-                            if (image.path != null) {
-                              var imageFile = File(image.path!);
-                              print(image.path!);
-                              var bytesList = await imageFile.readAsBytes();
-                              print(bytesList.length);
+                            var bytesList = await image.readAsBytes();
 
-                              imagesBytes.add(bytesList);
-                            }
+                            imagesBytes.add(bytesList);
                           }
                           await YuvConversion.jpgToYuv(
                             imagesBytes,
-                            () => showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text("Success"),
-                                content: const Text("Video complete"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(ctx);
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('Okay'),
-                                  )
-                                ],
-                              ),
-                            ),
-                            () => showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text("Error"),
-                                content: const Text("Something went wrong"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(ctx);
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('Okay'),
-                                  )
-                                ],
-                              ),
-                            ),
+                            () => Navigator.pop(context),
+                            () => Navigator.pop(context),
                           );
 
                           setState(() => isLoading = false);

@@ -1,5 +1,4 @@
 import 'package:date_time_picker/date_time_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -56,53 +55,65 @@ class _EventPersistScreenState extends State<EventPersistScreen> {
                   context: context,
                   builder: (_) => BlocProvider.value(
                     value: context.read<EventBloc>(),
-                    child: PlatformSpecificDialog(
-                      title: const Text(
-                          'Are you sure you want to delete this event?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary),
+                    child: BlocProvider.value(
+                      value: context.read<InvitationBloc>(),
+                      child: PlatformSpecificDialog(
+                        title: const Text(
+                            'Are you sure you want to delete this event?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary),
+                            ),
                           ),
-                        ),
-                        BlocBuilder<EventBloc, EventState>(
-                          builder: (context, state) {
-                            if (state is EventLoaded) {
-                              return state.isLoading
-                                  ? const Padding(
-                                      padding:
-                                          EdgeInsets.only(right: 20, left: 10),
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : TextButton(
-                                      onPressed: () {
-                                        context.read<EventBloc>().add(
-                                              EventDelete(
-                                                event: widget.event,
-                                                onFinished: () {
-                                                  Navigator.pop(context);
-                                                  Navigator.pop(context);
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            );
-                                      },
-                                      child: Text(
-                                        'Yes',
-                                        style: TextStyle(
-                                          color: Theme.of(context).primaryColor,
+                          BlocBuilder<EventBloc, EventState>(
+                            builder: (context, state) {
+                              if (state is EventLoaded) {
+                                return state.isLoading
+                                    ? const Padding(
+                                        padding: EdgeInsets.only(
+                                            right: 20, left: 10, top: 5),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
                                         ),
-                                      ),
-                                    );
-                            } else {
-                              return const SizedBox();
-                            }
-                          },
-                        )
-                      ],
+                                      )
+                                    : TextButton(
+                                        onPressed: () {
+                                          context.read<EventBloc>().add(
+                                                EventDelete(
+                                                  event: widget.event,
+                                                  onFinished: () => context
+                                                      .read<InvitationBloc>()
+                                                      .add(
+                                                    InvitationFetch(
+                                                        onFinished: () {
+                                                      Navigator.pop(context);
+                                                      Navigator.pop(context);
+                                                      Navigator.pop(context);
+                                                    }),
+                                                  ),
+                                                ),
+                                              );
+                                        },
+                                        child: Text(
+                                          'Yes',
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          ),
+                                        ),
+                                      );
+                              } else {
+                                return const SizedBox();
+                              }
+                            },
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -179,8 +190,7 @@ class _EventPersistScreenState extends State<EventPersistScreen> {
                                         },
                                       ),
                                     ),
-                                    Text(
-                                        state.guests[index].name ?? ''),
+                                    Text(state.guests[index].name ?? ''),
                                   ],
                                 ),
                               ),
@@ -257,11 +267,19 @@ class _EventPersistScreenState extends State<EventPersistScreen> {
                                                   guests: guests,
                                                   imageUrl: '',
                                                 ),
-                                                onFinished: () =>
-                                                    Navigator.pop(context),
+                                                onFinished: () {
+                                                  context
+                                                      .read<InvitationBloc>()
+                                                      .add(
+                                                        InvitationFetch(
+                                                          onFinished: () =>
+                                                              Navigator.pop(
+                                                                  context),
+                                                        ),
+                                                      );
+                                                },
                                               ),
                                             );
-                                        context.read<InvitationBloc>().add(InvitationFetch());
                                       }
                                 : null,
                             style: ButtonStyle(

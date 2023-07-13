@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -6,29 +5,26 @@ import 'package:flutter_media_writer/flutter_media_writer.dart';
 import 'package:image/image.dart';
 
 class YuvConversion {
-  static Future<bool> jpgToYuv(List<Uint8List> jpegData, VoidCallback onSuccess, VoidCallback onError) async {
+  static Future<bool> jpgToYuv(List<Uint8List> jpegData, VoidCallback onSuccess,
+      VoidCallback onError) async {
     try {
       final decoder = JpegDecoder();
       Image? decoded;
-      String direPath = "/data/data/com.example.event_app";
-      String filePath = "$direPath/0.mp4";
-      var videoFile = File(filePath);
+
       FlutterMediaWriter mediaWriter = FlutterMediaWriter();
-      mediaWriter.prepare(videoFile.path, 1200, 2000);
+      mediaWriter.prepare(1200, 2000);
 
       for (int i = 0; i < jpegData.length; i++) {
         decoded = decoder.decodeImage(jpegData[i]);
         if (decoded != null) {
           var imageResized = copyResize(decoded, width: 1200, height: 2000);
 
-          await Future.delayed(const Duration(seconds: 2));
           var pixels = imageResized.getBytes(format: Format.argb);
 
           encodeMethod(pixels, mediaWriter);
         }
       }
 
-      await Future.delayed(const Duration(seconds: 2));
       mediaWriter.stop();
       onSuccess.call();
       return true;
@@ -39,7 +35,8 @@ class YuvConversion {
     }
   }
 
-  static Uint8List convertRgbToYuv444(Uint8List pixels, int width, int height) {
+  static Uint8List convertArgbToYuv444(
+      Uint8List pixels, int width, int height) {
     final int ySize = width * height;
     final Uint8List yuvy = Uint8List(ySize);
     final Uint8List yuvu = Uint8List(ySize);
@@ -96,13 +93,7 @@ class YuvConversion {
 
   static Future<void> encodeMethod(
       Uint8List pixels, FlutterMediaWriter mediaWriter) async {
-    await Future.delayed(const Duration(seconds: 2));
-    var yuv420 = convertRgbToYuv444(pixels, 1200, 2000);
-    if (Platform.isIOS) {
-      await mediaWriter.encode(pixels);
-    } else {
-      await mediaWriter.encode(yuv420);
-    }
-    await Future.delayed(const Duration(seconds: 2));
+    var yuv420 = convertArgbToYuv444(pixels, 1200, 2000);
+    await mediaWriter.encode(yuv420);
   }
 }

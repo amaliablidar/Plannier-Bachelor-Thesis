@@ -106,7 +106,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                             PlatformSpecificDialog(
                                           title: const Text('Success'),
                                           content: const Text(
-                                              'Verify your email to finish resetting your password'),
+                                            'Verify your email to finish resetting your password',
+                                          ),
                                           actions: [
                                             TextButton(
                                               onPressed: () =>

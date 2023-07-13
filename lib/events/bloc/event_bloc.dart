@@ -1,18 +1,16 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:plannier/events/models/user.dart';
+
 import '../models/event.dart';
 import '../models/invitation.dart';
 
 part 'event_event.dart';
-
 part 'event_state.dart';
 
 class EventBloc extends Bloc<EventEvent, EventState> {
@@ -40,25 +38,38 @@ class EventBloc extends Bloc<EventEvent, EventState> {
         final allEvents = querySnapshot.docs.map((doc) {
           return Event.fromJson(doc.data() as Map<String, dynamic>, doc.id);
         }).toList();
+
         QuerySnapshot querySnapshotGuests = await refGuests.get();
         final allGuests = querySnapshotGuests.docs
             .map((e) =>
                 UserPlannier.fromJson(e.data() as Map<String, dynamic>, e.id))
             .toList();
-        var closestDate = allEvents.first.date;
-        Event closestEvent = allEvents.first;
-        for (int i = 1; i < allEvents.length; i++) {
-          if (allEvents[i].date.isBefore(closestDate) &&
-              allEvents[i].date.isAfter(DateTime.now())) {
-            closestDate = allEvents[i].date;
-            closestEvent = allEvents[i];
+        if (allEvents.isNotEmpty) {
+          var closestDate = allEvents.first.date;
+          Event closestEvent = allEvents.first;
+
+          for (int i = 1; i < allEvents.length; i++) {
+            if (allEvents[i].date.isBefore(closestDate) &&
+                allEvents[i].date.isAfter(DateTime.now())) {
+              closestDate = allEvents[i].date;
+              closestEvent = allEvents[i];
+            }
           }
+          emit(
+            s.copyWith(
+              isLoading: false,
+              events: allEvents,
+              guests: allGuests,
+              nextEvent: closestEvent,
+            ),
+          );
+        } else {
+          emit(s.copyWith(
+              isLoading: false,
+              events: allEvents,
+              guests: allGuests,
+              nextEvent: null));
         }
-        emit(s.copyWith(
-            isLoading: false,
-            events: allEvents,
-            guests: allGuests,
-            nextEvent: closestEvent));
       }
       event.onFinished?.call();
     } catch (e) {
@@ -91,7 +102,22 @@ class EventBloc extends Bloc<EventEvent, EventState> {
             .map((doc) =>
                 Event.fromJson(doc.data() as Map<String, dynamic>, doc.id))
             .toList();
-        emit(s.copyWith(isLoading: false, events: allEvents));
+        if (allEvents.isNotEmpty) {
+          var closestDate = allEvents.first.date;
+          Event closestEvent = allEvents.first;
+
+          for (int i = 1; i < allEvents.length; i++) {
+            if (allEvents[i].date.isBefore(closestDate) &&
+                allEvents[i].date.isAfter(DateTime.now())) {
+              closestDate = allEvents[i].date;
+              closestEvent = allEvents[i];
+            }
+          }
+          emit(s.copyWith(
+              isLoading: false, events: allEvents, nextEvent: closestEvent));
+        } else {
+          emit(s.copyWith(isLoading: false, events: allEvents));
+        }
         add(EventFetch(onFinished: event.onFinished));
       }
     } catch (e) {
@@ -161,7 +187,22 @@ class EventBloc extends Bloc<EventEvent, EventState> {
             .map((doc) =>
                 Event.fromJson(doc.data() as Map<String, dynamic>, doc.id))
             .toList();
-        emit(s.copyWith(isLoading: false, events: allEvents));
+        if (allEvents.isNotEmpty) {
+          var closestDate = allEvents.first.date;
+          Event closestEvent = allEvents.first;
+
+          for (int i = 1; i < allEvents.length; i++) {
+            if (allEvents[i].date.isBefore(closestDate) &&
+                allEvents[i].date.isAfter(DateTime.now())) {
+              closestDate = allEvents[i].date;
+              closestEvent = allEvents[i];
+            }
+          }
+          emit(s.copyWith(
+              isLoading: false, events: allEvents, nextEvent: closestEvent));
+        } else {
+          emit(s.copyWith(isLoading: false, events: allEvents));
+        }
         add(EventFetch(onFinished: event.onFinished));
       }
     } catch (e) {
@@ -181,27 +222,39 @@ class EventBloc extends Bloc<EventEvent, EventState> {
             .map((doc) =>
                 Event.fromJson(doc.data() as Map<String, dynamic>, doc.id))
             .toList();
-        if(event.event!=null) {
+        if (event.event != null) {
           for (var eventGuestId in event.event!.guests.keys) {
-            var containsGuest = event.event!.guests.keys.contains(eventGuestId);
-            if (!containsGuest) {
-              try {
-                var ref = FirebaseFirestore.instance
-                    .collection('/users/$eventGuestId/invitations');
-                var invitationsJson = await ref.get();
-                var invitationList = invitationsJson.docs
-                    .map((e) => Invitation.fromJson(e.data(), e.id))
-                    .toList();
-                var invitationToDelete = invitationList
-                    .firstWhere((element) => element.eventId == event.event!.id);
-                await ref.doc(invitationToDelete.id).delete();
-              } catch (e) {
-                print(e);
-              }
+            try {
+              var ref = FirebaseFirestore.instance
+                  .collection('/users/$eventGuestId/invitations');
+              var invitationsJson = await ref.get();
+              var invitationList = invitationsJson.docs
+                  .map((e) => Invitation.fromJson(e.data(), e.id))
+                  .toList();
+              var invitationToDelete = invitationList
+                  .firstWhere((element) => element.eventId == event.event!.id);
+              await ref.doc(invitationToDelete.id).delete();
+            } catch (e) {
+              print(e);
             }
           }
         }
-        emit(s.copyWith(isLoading: false, events: allEvents));
+        if (allEvents.isNotEmpty) {
+          var closestDate = allEvents.first.date;
+          Event closestEvent = allEvents.first;
+
+          for (int i = 1; i < allEvents.length; i++) {
+            if (allEvents[i].date.isBefore(closestDate) &&
+                allEvents[i].date.isAfter(DateTime.now())) {
+              closestDate = allEvents[i].date;
+              closestEvent = allEvents[i];
+            }
+          }
+          emit(s.copyWith(
+              isLoading: false, events: allEvents, nextEvent: closestEvent));
+        } else {
+          emit(s.copyWith(isLoading: false, events: allEvents));
+        }
         event.onFinished?.call();
       }
     } catch (e) {

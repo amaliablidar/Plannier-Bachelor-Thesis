@@ -123,10 +123,12 @@ class InvitationCard extends StatelessWidget {
                                     if (state is InvitationLoaded) {
                                       return state.isLoading
                                           ? const Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 15.0),
-                                              child:
-                                                  CircularProgressIndicator(),
+                                              padding: EdgeInsets.only(
+                                                  right: 20, left: 10, top: 5),
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
                                             )
                                           : TextButton(
                                               onPressed: () {
@@ -208,10 +210,12 @@ class InvitationCard extends StatelessWidget {
                                     if (state is InvitationLoaded) {
                                       return state.isLoading
                                           ? const Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 15.0),
-                                              child:
-                                                  CircularProgressIndicator(),
+                                              padding: EdgeInsets.only(
+                                                  right: 20, left: 10, top: 5),
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              ),
                                             )
                                           : TextButton(
                                               onPressed: () {

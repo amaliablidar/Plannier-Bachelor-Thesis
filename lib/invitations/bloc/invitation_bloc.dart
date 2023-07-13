@@ -5,13 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:meta/meta.dart';
 
 import '../../events/models/event.dart';
 import '../../events/models/invitation.dart';
 
 part 'invitation_event.dart';
-
 part 'invitation_state.dart';
 
 class InvitationBloc extends Bloc<InvitationEvent, InvitationState> {

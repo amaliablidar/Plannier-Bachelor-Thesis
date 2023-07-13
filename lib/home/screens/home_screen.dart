@@ -1,17 +1,13 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'dart:ui';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plannier/home/screens/upload_picture_screen.dart';
-import 'package:plannier/home/widgets/count_down.dart';
-import 'package:plannier/home/widgets/invitation_response.dart';
-import 'package:plannier/invitations/widgets/invitation_card.dart';
-import 'package:plannier/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:plannier/home/widgets/count_down.dart';
+import 'package:plannier/invitations/widgets/invitation_card.dart';
+import 'package:plannier/utils/colors.dart';
 
 import '../../events/bloc/event_bloc.dart';
 import '../../events/models/event.dart';
@@ -57,34 +53,41 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const CountDown(),
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Invitations',
-                  style: TextStyle(fontSize: 16),
-                ),
-                GestureDetector(
-                  onTap: widget.onSeeAllInvitations,
-                  child: Container(
-                    height: 30,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: PlannerieColors.primary.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        'See all',
-                        style: TextStyle(
-                            color: PlannerieColors.primary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500),
+            BlocBuilder<InvitationBloc, InvitationState>(
+              builder: (context, state) {
+                if (state is InvitationLoaded) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Invitations',
+                        style: TextStyle(fontSize: 16),
                       ),
-                    ),
-                  ),
-                ),
-              ],
+                      GestureDetector(
+                        onTap: widget.onSeeAllInvitations,
+                        child: Container(
+                          height: 30,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: PlannerieColors.primary.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'See all',
+                              style: TextStyle(
+                                  color: PlannerieColors.primary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox();
+              },
             ),
             const SizedBox(height: 10),
             BlocBuilder<InvitationBloc, InvitationState>(
@@ -111,6 +114,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       invitation: state.invitations[
                           invitationIndex != -1 ? invitationIndex : 0],
                       event: event,
+                    );
+                  } else {
+                    return const Center(
+                      child: Text("No invitations yet"),
                     );
                   }
                 }

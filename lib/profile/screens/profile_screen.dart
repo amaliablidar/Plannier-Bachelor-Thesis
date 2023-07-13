@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plannier/event_app_bar.dart';
 import 'package:plannier/events/models/event.dart';
 import 'package:plannier/events/models/user.dart';
 import 'package:plannier/login/screens/login_screen.dart';
@@ -278,12 +277,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 16),
-                                  BlocBuilder<InvitationBloc,
-                                      InvitationState>(
+                                  BlocBuilder<InvitationBloc, InvitationState>(
                                     builder: (context, st) {
                                       if (st is InvitationLoaded) {
-                                        var invitationResponses = st
-                                            .invitations
+                                        var invitationResponses = st.invitations
                                             .where((element) =>
                                                 element.response !=
                                                 Response.pending)
@@ -332,8 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             Text(
                                               st.events.length.toString(),
                                               style: const TextStyle(
-                                                  fontWeight:
-                                                      FontWeight.bold),
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                           ],
                                         );
@@ -353,8 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             Text(
                                               st.toDo.length.toString(),
                                               style: const TextStyle(
-                                                  fontWeight:
-                                                      FontWeight.bold),
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                           ],
                                         );
