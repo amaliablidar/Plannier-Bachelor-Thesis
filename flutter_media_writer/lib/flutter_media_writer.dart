@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 
 import 'flutter_media_writer_platform_interface.dart';
-import 'media_format.dart';
 
 class FlutterMediaWriter  {
   final _methodChannel = const MethodChannel('flutter_media_writer');
@@ -13,9 +12,8 @@ class FlutterMediaWriter  {
     return FlutterMediaWriterPlatform.instance.getPlatformVersion();
   }
 
-  Future<String> prepare(String outputPath, int width, int height) async {
+  Future<String> prepare(int width, int height) async {
     final args = <String, dynamic>{
-      'outputPath': outputPath,
       'width': width,
       'height': height,
     };

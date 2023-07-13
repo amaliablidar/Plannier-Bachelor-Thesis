@@ -23,11 +23,9 @@ class FlutterMediaWriterPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         if (call.method.equals("prepare")) {
-            val outputPath = call.argument<String>("outputPath")
             val width = call.argument<Int>("width")
             val height = call.argument<Int>("height")
-            android.util.Log.d(TAG, "onMethodCall: $outputPath")
-            mediaMuxerWrapper.prepare(outputPath!!, width!!, height!!)
+            mediaMuxerWrapper.prepare(width!!, height!!)
         } else if (call.method.equals("encode")) {
             val byteBuf = call.argument<ByteArray>("byteBuf") as ByteArray
             mediaMuxerWrapper.encode(

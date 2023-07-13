@@ -20,13 +20,12 @@ public class SwiftFlutterMediaWriterPlugin: NSObject, FlutterPlugin {
         
         if (call.method.elementsEqual("prepare")){
             guard let arguments = call.arguments as? [String: Any],
-                  let outputPath = arguments["outputPath"] as? String,
                   let width = arguments["width"] as? Int,
                   let height = arguments["height"] as? Int else {
                 result(FlutterError(code: "Arguments error prepare", message: "Missing or invalid arguments", details: nil))
                 return
             }
-            result(avAssetWrapper.prepare(outputPath: outputPath, width: width, height: height)  )
+            result(avAssetWrapper.prepare(width: width, height: height)  )
         }
         else
         if (call.method.elementsEqual("encode")){
@@ -42,7 +41,6 @@ public class SwiftFlutterMediaWriterPlugin: NSObject, FlutterPlugin {
         else
         if (call.method.elementsEqual("stop")){
             avAssetWrapper.stop()
-            result("hello")
         }
     }
 }

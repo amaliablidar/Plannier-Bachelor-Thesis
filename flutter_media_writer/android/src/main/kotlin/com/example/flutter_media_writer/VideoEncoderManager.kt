@@ -9,6 +9,9 @@ import java.io.IOException
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingQueue
+import android.os.Environment
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class VideoEncoderManager : MediaCodec.Callback() {
     private val inputBuffersQueue = LinkedBlockingQueue<Int>(
@@ -19,15 +22,29 @@ class VideoEncoderManager : MediaCodec.Callback() {
     private var outputVideoIndex = 0
     private var videoPath: String? = null
     private var framePresentationTime: Long = 0
-    private var isMediaCodecStarted = false
+    private var isMediaCodectted = false
     private var width = 0
     private var height = 0
 
-    fun startEncoder(videoPath: String?, videoSize: Size, colorFormat: Int) {
+    fun getGalleryPath(): String? {
+        val externalStoragePublicDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        val currentDate = LocalDate.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val dateString = currentDate.format(formatter)
+        return "${externalStoragePublicDirectory?.absolutePath}/$dateString.mp4"
+    }
+    fun prepare(videoSize: Size, colorFormat: Int) {
         try {
+            videoPath = getGalleryPath();
+            Log.d(
+                TAG,
+                String.format(
+                    "startEncoder. Status: completed. Video path: %s",
+                    this.videoPath
+                )
+            )
             width = videoSize.width
             height = videoSize.height
-            this.videoPath = videoPath
             val format = createOutputFormat(videoSize, colorFormat)
             mediaCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC) //h.264
             mediaCodec!!.setCallback(this)
@@ -58,26 +75,7 @@ class VideoEncoderManager : MediaCodec.Callback() {
         }
     }
 
-    fun stopEncoder() {
-        Log.d(TAG, "stopEncoder")
-        outputVideoIndex = 0
-        if (mediaCodec != null && isMediaCodecStarted) {
-            try {
-                mediaCodec!!.stop()
-                mediaCodec!!.release()
-            } catch (e: IllegalStateException) {
-                Log.d(TAG, "stopEncoder. Status:error. Message: Couldn't stop the codec.")
-            }
-            mediaCodec = null
-            isMediaCodecStarted = false
-        }
-        if (mediaMuxer != null) {
-            mediaMuxer!!.stop()
-            mediaMuxer!!.release()
-            mediaMuxer = null
-        }
-        inputBuffersQueue.clear()
-    }
+
 
 
     fun encode(frameData: ByteArray?) {
@@ -186,9 +184,6 @@ class VideoEncoderManager : MediaCodec.Callback() {
         }
     }
 
-    /**
-     * Receives the frame data from codec which is encoded as H.264 and writes the frames into an mp4 file.
-     */
     private fun dequeueInputBuffer(
         mediaCodec: MediaCodec,
         index: Int,
@@ -265,6 +260,29 @@ class VideoEncoderManager : MediaCodec.Callback() {
         return true
     }
 
+    fun stop() {
+        Log.d(TAG, "stopEncoder")
+        outputVideoIndex = 0
+        if (mediaCodec != null && isMediaCodecStarted) {
+            try {
+                mediaCodec!!.stop()
+                mediaCodec!!.release()
+            } catch (e: IllegalStateException) {
+                Log.d(TAG, "stopEncoder. Status:error. Message: Couldn't stop the codec.")
+            }
+            mediaCodec = null
+            isMediaCodecStarted = false
+        }
+        if (mediaMuxer != null) {
+            mediaMuxer!!.stop()
+            mediaMuxer!!.release()
+            mediaMuxer = null
+        }
+        inputBuffersQueue.clear()
+    }
+
+
+
     /**
      * Creates the output format for the [.mediaCodec].
      */
@@ -290,30 +308,23 @@ class VideoEncoderManager : MediaCodec.Callback() {
         result.setInteger(MediaFormat.KEY_BIT_RATE, videoBitRate)
         Log.d(TAG, String.format("createOutputFormat. Video bit rate: %s ", videoBitRate))
         Log.d(TAG, String.format("createOutputFormat. Video frame rate: %s ", VIDEO_FRAME_RATE))
-        Log.d(
-            TAG,
-            String.format(
-                "createOutputFormat. Video I frame interval: %s ",
-                VIDEO_KEY_FRAME_INTERVAL
-            )
-        )
+
         result.setInteger(MediaFormat.KEY_FRAME_RATE, VIDEO_FRAME_RATE)
-        result.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, VIDEO_KEY_FRAME_INTERVAL)
         Log.d(
             TAG,
             "createOutputFormat. Status: success. Message: Output format available for encoder."
         )
-        return result;
+        return result
     }
 
     /**
      * Update the presentation time for the next encoded frame.
      */
     private fun updatePresentationTime() {
-        // presentationTimeUs should be monotonic
-        // otherwise muxer fail to write
         framePresentationTime += FRAME_PRESENTATION_INTERVAL
     }
+
+
 
     companion object {
         private val TAG = VideoEncoderManager::class.java.simpleName
@@ -327,12 +338,6 @@ class VideoEncoderManager : MediaCodec.Callback() {
          * Number of pixels kept from a photo
          */
         private const val BITRATE_MULTIPLIER = 3
-
-        /**
-         * The interval in seconds for a video key frames.
-         */
-        //TODO check if frame interval is good
-        private const val VIDEO_KEY_FRAME_INTERVAL = 5
 
         /**
          * The interval between photos in microseconds
