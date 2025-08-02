@@ -1,9 +1,10 @@
-Plannier
+# Plannier
+
 A Flutter event planning app built as part of my Bachelor Thesis at Babeș-Bolyai University.
 
 Plannier helps users manage events by creating to-do lists, sending invitations, and preserving memories through image-to-video conversion. The project includes a custom Flutter plugin developed in Kotlin and Swift that enables native video encoding on both Android and iOS platforms.
 
-🔧 Core Features
+## Core Features
 Event to-do list creation and invitation sending
 
 Image-to-video conversion using a custom Flutter plugin
