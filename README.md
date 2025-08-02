@@ -19,5 +19,5 @@ AVAssetWriter and CVPixelBuffer on iOS
 
 Platform channels used for Dart ↔ Native communication
 
-📂 Thesis & Documentation
+## Thesis & Documentation
 Detailed technical documentation is available in the bachelor_thesis/ folder, including architecture, plugin logic, and video encoding process.
