@@ -1,16 +1,22 @@
-# plannier
+Plannier
+A Flutter event planning app built as part of my Bachelor Thesis at Babeș-Bolyai University.
 
-A new Flutter project.
+Plannier helps users manage events by creating to-do lists, sending invitations, and preserving memories through image-to-video conversion. The project includes a custom Flutter plugin developed in Kotlin and Swift that enables native video encoding on both Android and iOS platforms.
 
-## Getting Started
+🔧 Core Features
+Event to-do list creation and invitation sending
 
-This project is a starting point for a Flutter application.
+Image-to-video conversion using a custom Flutter plugin
 
-A few resources to get you started if this is your first Flutter project:
+Manual image conversion from RGBA → YUV444 → YUV420 for efficient compression
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Native integration with:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+MediaCodec and MediaMuxer on Android
+
+AVAssetWriter and CVPixelBuffer on iOS
+
+Platform channels used for Dart ↔ Native communication
+
+📂 Thesis & Documentation
+Detailed technical documentation is available in the bachelor_thesis/ folder, including architecture, plugin logic, and video encoding process.
